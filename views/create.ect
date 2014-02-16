@@ -6,6 +6,8 @@
       name="title"
       ng-model="poll.title"
       ng-enter-tab="true"
+      maxlength="140"
+      autocapitalize="true"
       placeholder="Your question?"
       autofocus="true"
     />
@@ -17,6 +19,8 @@
         ng-keydown="keydown($event, $index)"
         ng-model="poll.options[$index]"
         ng-enter-tab="true"
+        maxlength="140"
+        autocapitalize="true"
         placeholder="Option {{$index + 1}}"
       />
     </li>

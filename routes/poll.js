@@ -46,8 +46,8 @@ exports.create = function(req, res) {
     return error(res, "A non-empty 'title' is required.");
   }
 
-  if (title.length > 256) {
-    return error(res, "'title' length must not exceed 256 characters.")
+  if (title.length > 140) {
+    return error(res, "'title' length must not exceed 140 characters.")
   }
 
   var options = req.body.options;
@@ -58,8 +58,8 @@ exports.create = function(req, res) {
   options.forEach(function(option) {
     if (!option && !option.trim()) {
       return error(res, "'options' must not be empty.");
-    } else if (option.length > 256) {
-      return error(res, "Option length must not exceed 256 characters.")
+    } else if (option.length > 140) {
+      return error(res, "Option length must not exceed 140 characters.")
     }
   });
 
