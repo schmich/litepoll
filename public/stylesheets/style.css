@@ -59,6 +59,7 @@ input[type="radio"] + label, .results .option {
   min-height: 100%;
   width: 900px;
   margin: 0 auto;
+  padding-bottom: 40px;
   background: white;
 }
 .header {
@@ -95,9 +96,6 @@ input[type="radio"]:checked + label {
 }
 #create-poll, #vote-poll, .results {
   margin: 0 40px;
-}
-.results {
-  padding-bottom: 40px;
 }
 #create-poll .option {
   margin-bottom: 10px;
