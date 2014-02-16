@@ -5,9 +5,11 @@
   - Big button to share on Reddit
   - Big button to share via email/...
   - Button/link to poll
-- Use LocalStorage for "recent questions"
 - Use cookies/LocalStorage as front-line defense for stopping duplicate votes
 - Have /api path for JSON calls
 - Use promises
-- Remove normalize.css (use only necessary rules)
 - Redirect www.litepoll.com -> litepoll.com
+
+Later:
+- Use LocalStorage for "recent questions"
+- Allow multiple votes (bounded, unbounded)

@@ -15,6 +15,26 @@ function error(res, message, code) {
   res.send(code || 400, { error: message });
 }
 
+function mongoGetPoll(id, callback) {
+  Poll.findOne({ _id: id }, function(err, poll) {
+    if (err) {
+      callback(null);
+    } else {
+      callback(poll);
+    }
+  });
+}
+
+function redisCacheOptions(poll) {
+  var cache = { title: poll.title, options: poll.opts };
+  var key = 'q:' + poll._id;
+  redis.set(key, JSON.stringify(cache), function(err) {
+    if (!err) {
+      redis.expire(key, 15 * 60 /* 15 minutes */);
+    }
+  });
+}
+
 exports.createForm = function(req, res) {
   res.render('create');
 };
@@ -64,6 +84,8 @@ exports.create = function(req, res) {
     // TODO: Check for errors.
     var encodedId = poll._id.toString(36);
     res.send(201, { path: { web: '/' + encodedId, api: '/poll/' + encodedId } });
+
+    redisCacheOptions(poll);
   });
 };
 
@@ -108,6 +130,34 @@ exports.vote = function(req, res) {
   });
 };
 
+exports.options = function(req, res) {
+  var encodedId = req.params.id;
+  if (!encodedId) {
+    return error(res, "'id' is required.");
+  }
+
+  var id = parseInt(encodedId, 36);
+  if (isNaN(id)) {
+    return error(res, "'id' is invalid.");
+  }
+  
+  redis.get('q:' + id, function(err, cache) {
+    if (cache) {
+      var poll = JSON.parse(cache);
+      res.send(poll);
+    } else {
+      mongoGetPoll(id, function(poll) {
+        if (poll) {
+          res.send({ title: poll.title, options: poll.opts });
+          redisCacheOptions(poll);
+        } else {
+          return pollNotFound(res, encodedId);
+        }
+      });
+    }
+  });
+};
+
 exports.showJson = function(req, res) {
   var encodedId = req.params.id;
   if (!encodedId) {
@@ -119,11 +169,11 @@ exports.showJson = function(req, res) {
     return error(res, "'id' is invalid.");
   }
 
-  Poll.findOne({ _id: id }, function(err, poll) {
-    if (err) {
-      return pollNotFound(res, encodedId);
-    } else {
+  mongoGetPoll(id, function(poll) {
+    if (poll) {
       res.send({ title: poll.title, options: underscore.zip(poll.opts, poll.votes) });
+    } else {
+      return pollNotFound(res, encodedId);
     }
   });
 };

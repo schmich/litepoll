@@ -50,7 +50,7 @@ $app.controller('PollVoteCtrl', function($scope, $http, $element) {
       });
   };
 
-  $http.get('/poll/' + pollId)
+  $http.get('/poll/' + pollId + '/options')
     .success(function(data) {
       $scope.poll = data;
     })

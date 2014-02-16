@@ -32,6 +32,7 @@ if ('development' == app.get('env')) {
 app.get('/', poll.createForm);
 app.post('/poll', poll.create);
 app.get('/poll/:id', poll.showJson);
+app.get('/poll/:id/options', poll.options);
 app.put('/poll/:id', poll.vote);
 app.get('/:id', poll.showHtml);
 app.get('/:id/r', poll.results);
