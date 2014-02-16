@@ -42,7 +42,7 @@ textarea:focus, input[type="text"]:focus {
 }
 input[type="text"] {
   border: 0;
-  padding: 10px;
+  padding: 0;
   width: 100%;
 }
 input[type="radio"] {
@@ -61,6 +61,9 @@ input[type="radio"] + label, .results .option {
   margin: 0 auto;
   padding-bottom: 40px;
   background: white;
+}
+.content {
+  margin: 0 40px;
 }
 .header {
   line-height: 0;
@@ -100,15 +103,18 @@ input[type="radio"]:checked + label .fa:before {
 input[type="radio"]:checked + label {
   color: #2b4;
 }
+#create-poll #title {
+  margin: 0 10px 10px 0;
+}
 #vote-poll ol {
   margin-left: 0;
   padding-left: 0;
 }
-#create-poll, #vote-poll, .results {
-  margin: 0 40px;
-}
 #create-poll .option {
   margin-bottom: 10px;
+}
+#create-poll .option li {
+  margin: 20px 0;
 }
 #create-poll .actions, #vote-poll .actions {
   margin-top: 30px;
@@ -137,6 +143,7 @@ input[type="radio"]:checked + label {
   padding: 15px 30px;
   display: inline-block;
   cursor: pointer;
+  width: 210px;
 }
 .action:hover, .action:focus {
   background: #79f;
@@ -175,4 +182,41 @@ input[type="radio"]:checked + label {
 }
 .notice {
   margin-top: 20px;
+}
+.logo {
+  width: 74px;
+  height: 32px;
+  background-image: url('/assets/images/logo.png');
+}
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min--moz-device-pixel-ratio: 2),
+only screen and (-o-min-device-pixel-ratio: 2/1),
+only screen and (min-device-pixel-ratio: 2),
+only screen and (min-resolution: 192dpi),
+only screen and (min-resolution: 2dppx) { 
+  .logo {
+    background: url('/assets/images/logo@2x.png');
+    background-size: contain;
+  }
+}
+@media only screen and (min-width: 0em) and (max-width: 40em) {
+  .logo {
+    margin: 0 auto;
+  }
+  .header {
+    margin-bottom: 30px;
+  }
+  .content {
+    margin: 0 15px;
+  }
+  #vote-now {
+    margin: 0 0 10px 0;
+  }
+  #vote-now, #see-results {
+    display: block;
+  }
+  ol, ul {
+    margin-left: 45px;
+  }
 }
