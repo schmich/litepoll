@@ -128,6 +128,7 @@ input[type="radio"]:checked + label {
   border: 0;
   padding: 15px 30px;
   display: inline-block;
+  cursor: pointer;
 }
 .action:hover, .action:focus {
   background: #79f;
