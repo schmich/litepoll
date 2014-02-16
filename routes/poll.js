@@ -103,29 +103,42 @@ exports.vote = function(req, res) {
     return error(res, "'id' is invalid.");
   }
 
-  var vote = req.body.vote;
-  if (vote == null) {
-    return error(res, "'vote' is required.");
-  }
-
-  var voteIndex = +vote;
-  if (voteIndex != vote) {
-    return error(res, "Integer 'vote' is required.");
-  }
-
-  if (voteIndex < 0) {
-    return error(res, "'vote' must be in range.");
-  }
-
-  var update = { $inc: { } };
-  update['$inc']['votes.' + voteIndex] = 1;
-
-  Poll.update({ _id:  id }, update, {}, function(err, affected) {
-    if (affected == 0) {
-      return error(res, "'id' not found or 'vote' not in range.");
+  var ip = req.ip;
+  var ipKey = 'q:' + id + ':ip';
+  redis.sismember(ipKey, ip, function(err, member) {
+    if (member) {
+      return error(res, "You have already voted.");
     } else {
-      res.send({});
-      streaming.getClient().publish('/poll/' + encodedId, { vote: voteIndex });
+      var vote = req.body.vote;
+      if (vote == null) {
+        return error(res, "'vote' is required.");
+      }
+
+      var voteIndex = +vote;
+      if (voteIndex != vote) {
+        return error(res, "Integer 'vote' is required.");
+      }
+
+      if (voteIndex < 0) {
+        return error(res, "'vote' must be in range.");
+      }
+
+      var update = { $inc: { } };
+      update['$inc']['votes.' + voteIndex] = 1;
+
+      Poll.update({ _id:  id }, update, {}, function(err, affected) {
+        if (affected == 0) {
+          return error(res, "'id' not found or 'vote' not in range.");
+        } else {
+          res.send({});
+
+          // Notify clients of vote.
+          streaming.getClient().publish('/poll/' + encodedId, { vote: voteIndex });
+
+          // Ignore any errors when adding IP to the voted-IP list.
+          redis.sadd(ipKey, ip);
+        }
+      });
     }
   });
 };
