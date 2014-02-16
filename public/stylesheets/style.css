@@ -57,7 +57,7 @@ input[type="radio"] + label, .results .option {
 }
 .container {
   min-height: 100%;
-  width: 900px;
+  max-width: 900px;
   margin: 0 auto;
   padding-bottom: 40px;
   background: white;
@@ -81,6 +81,9 @@ input[type="radio"]:not(:disabled) + label:hover {
 }
 input[type="radio"]:disabled + label:hover {
   cursor: default;
+}
+input[type="radio"]:disabled + label {
+  color: #aaa;
 }
 input[type="radio"] + label .fa:before {
   content: "\f10c";

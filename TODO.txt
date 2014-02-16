@@ -5,7 +5,6 @@
   - Big button to share on Reddit
   - Big button to share via email/...
   - Button/link to poll
-- Use cookies/LocalStorage as front-line defense for stopping duplicate votes
 - Have /api path for JSON calls
 - Use promises
 - Redirect www.litepoll.com -> litepoll.com
