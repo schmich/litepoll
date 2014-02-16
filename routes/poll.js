@@ -126,14 +126,14 @@ exports.vote = function(req, res) {
       var update = { $inc: { } };
       update['$inc']['votes.' + voteIndex] = 1;
 
-      Poll.update({ _id:  id }, update, {}, function(err, affected) {
-        if (affected == 0) {
+      Poll.findOneAndUpdate({ _id:  id }, update, {}, function(err, poll) {
+        if (!poll) {
           return error(res, "'id' not found or 'vote' not in range.");
         } else {
           res.send({});
 
           // Notify clients of vote.
-          streaming.getClient().publish('/poll/' + encodedId, { vote: voteIndex });
+          streaming.getClient().publish('/poll/' + encodedId, poll.votes);
 
           // Ignore any errors when adding IP to the voted-IP list.
           redis.sadd(ipKey, ip);

@@ -84,16 +84,16 @@ $app.controller('PollResultCtrl', function($scope, $http, $element) {
   }
     
   var client = new Faye.Client('/stream');
-  var subscription = client.subscribe('/poll/' + pollId, function(message) {
+  var subscription = client.subscribe('/poll/' + pollId, function(votes) {
     if ($scope.poll == null)
       return;
 
-    var voteIndex = message.vote;
-    if (voteIndex != null && voteIndex >= 0 && voteIndex < $scope.poll.options.length) {
-      $scope.$apply(function() {
-        $scope.poll.options[voteIndex][1]++;
-      });
-    }
+    $scope.$apply(function() {
+      var options = $scope.poll.options;
+      for (var i = 0; i < options.length; ++i) {
+        options[i][1] = votes[i];
+      }
+    });
   });
 });
 
