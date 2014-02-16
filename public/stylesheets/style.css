@@ -20,7 +20,7 @@ html, body, form, ol, ul, li, h1, h2, h3, h4 {
 }
 * {
   box-sizing: border-box;
-  font-family: 'Helvetica Neue', sans-serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 28px;
   font-weight: 200;
 }
@@ -63,7 +63,6 @@ input[type="radio"] + label, .results .option {
 }
 .results .option {
   padding-left: 0;
-  margin-bottom: 10px;
 }
 input[type="radio"] + label .fa {
   color: #ccc;

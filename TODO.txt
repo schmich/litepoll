@@ -1,4 +1,3 @@
-- Redirect www.litepoll.com -> litepoll.com
 - Mobile-responsive layout
 - Mobile: after creating poll, show intermediate "share" screen with:
   - Big button to share on Twitter (intent)
@@ -13,3 +12,4 @@
 - Redis error handling
 - Use promises
 - Remove normalize.css (use only necessary rules)
+- Redirect www.litepoll.com -> litepoll.com
