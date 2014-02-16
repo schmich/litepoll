@@ -14,7 +14,8 @@ $app.controller('PollCreateCtrl', function($scope, $http) {
       return;
     }
 
-    if (index == $scope.poll.options.length - 1) {
+    var count = $scope.poll.options.length;
+    if ((count < 32) && (index == count - 1)) {
       $scope.poll.options.push('');
     }
   };
