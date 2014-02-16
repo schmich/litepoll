@@ -1,0 +1,16 @@
+<% extend 'layout.ect' %>
+<form name="form" id="vote-poll" ng-controller="PollVoteCtrl" ng-submit="submitVote()" data-poll-id="<%= @id %>">
+  <h1 class="title">{{poll.title}}</h1>
+  <ol class="options">
+    <li class="option" ng-repeat="option in poll.options track by $index">
+      <input type="radio" id="options-{{$index}}" name="options" value="{{$index}}" ng-model="$parent.vote" />
+      <label for="options-{{$index}}"><i class="fa"></i> {{option.option}}</label>
+    </li>
+  </ol>
+  <center>
+    <div class="actions">
+      <input type="submit" id="vote" class="action" value="Vote Now" />
+      <a href="<%= @id %>/r" id="results" class="action">See Results</a>
+    </div>
+  </center>
+</form>

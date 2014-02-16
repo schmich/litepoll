@@ -1,0 +1,29 @@
+<% extend 'layout.ect' %>
+<form name="form" id="create-poll" ng-controller="PollCreateCtrl" ng-submit="createPoll()">
+  <div class="title">
+    <input type="text"
+      id="title"
+      name="title"
+      ng-model="poll.title"
+      ng-enter-tab="true"
+      placeholder="Your question?"
+      autofocus="true"
+    />
+  </div>
+  <ol class="option">
+    <li ng-repeat="option in poll.options track by $index">
+      <input type="text"
+        name="options"
+        ng-dirtied="dirtied($index)"
+        ng-model="poll.options[$index]"
+        ng-enter-tab="true"
+        placeholder="Option {{$index + 1}}"
+      />
+    </li>
+  </ol>
+  <center>
+    <div class="actions">
+      <input type="submit" class="action" value="Create Poll" />
+    </div>
+  </center>
+</form>

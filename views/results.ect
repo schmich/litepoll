@@ -1,0 +1,20 @@
+<% extend 'layout.ect' %>
+<div ng-controller="PollResultCtrl" data-poll-id="<%= @id %>">
+  <div class="results">
+    <div class="title">{{poll.title}}</div>
+    <div class="votes">{{totalVotes | plural:'vote' | titleCase}}</div>
+    <ol>
+      <li class="option" ng-repeat="option in poll.options | orderBy:'-votes' track by $index">
+        <div class="value">{{option.option}}</div>
+        <div class="percent">
+          <div class="fill" style="width: {{option.votes / totalVotes | percent:2}}">
+          </div>
+          <div class="caption">
+           {{option.votes / totalVotes | percent:0}} &middot; {{option.votes | plural:'vote' | titleCase}}
+          </div>
+        </div>
+      </div>
+      </li>
+    </ol>
+  </div>
+</div>
