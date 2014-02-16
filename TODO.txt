@@ -1,13 +1,8 @@
-- Mobile: after creating poll, show intermediate "share" screen with:
-  - Big button to share on Twitter (intent)
-  - Big button to share on FB
-  - Big button to share on Reddit
-  - Big button to share via email/...
-  - Button/link to poll
+- Add necessary meta tags for FB share support
 - Have /api path for JSON calls
-- Use promises
 - Redirect www.litepoll.com -> litepoll.com
 
 Later:
 - Use LocalStorage for "recent questions"
 - Allow multiple votes (bounded, unbounded)
+- Use promises

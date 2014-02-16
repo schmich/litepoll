@@ -36,6 +36,7 @@ app.get('/poll/:id/options', poll.options);
 app.put('/poll/:id', poll.vote);
 app.get('/:id', poll.showHtml);
 app.get('/:id/r', poll.results);
+app.get('/:id/s', poll.share);
 
 var server = http.createServer(app);
 streaming.attach(server);

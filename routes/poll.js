@@ -83,7 +83,7 @@ exports.create = function(req, res) {
   poll.save(function() {
     // TODO: Check for errors.
     var encodedId = poll._id.toString(36);
-    res.send(201, { path: { web: '/' + encodedId, api: '/poll/' + encodedId } });
+    res.send(201, { path: { web: '/' + encodedId + '/s', api: '/poll/' + encodedId } });
 
     redisCacheOptions(poll);
   });
@@ -199,4 +199,9 @@ exports.showHtml = function(req, res) {
 // TODO: Handle 404 for invalid poll ID
 exports.results = function(req, res) {
   res.render('results', { id: req.params.id });
+};
+
+// TODO: Handle 404 for invalid poll ID
+exports.share = function(req, res) {
+  res.render('share', { id: req.params.id });
 };
