@@ -62,8 +62,8 @@ exports.create = function(req, res) {
 
   poll.save(function() {
     // TODO: Check for errors.
-    var id = poll._id;
-    res.send(201, { path: { web: '/' + id, api: '/poll/' + id } });
+    var encodedId = poll._id.toString(36);
+    res.send(201, { path: { web: '/' + encodedId, api: '/poll/' + encodedId } });
   });
 };
 
