@@ -73,11 +73,14 @@ input[type="radio"] + label .fa {
   color: #ccc;
   margin-right: 5px;
 }
-input[type="radio"] + label:hover .fa {
+input[type="radio"]:not(:disabled) + label:hover .fa {
   color: #3c5;
 }
-input[type="radio"] + label:hover {
+input[type="radio"]:not(:disabled) + label:hover {
   color: #3c5;
+}
+input[type="radio"]:disabled + label:hover {
+  cursor: default;
 }
 input[type="radio"] + label .fa:before {
   content: "\f10c";
@@ -135,6 +138,10 @@ input[type="radio"]:checked + label {
 .action:focus {
   outline: 1px solid #79f;
 }
+.action:disabled {
+  background: #aaa;
+  cursor: default;
+}
 .option .value {
   position: relative;
   display: inline-block;
@@ -158,4 +165,7 @@ input[type="radio"]:checked + label {
   display: inline-block;
   font-size: 24px;
   color: #777;
+}
+.notice {
+  margin-top: 20px;
 }

@@ -1,4 +1,4 @@
-var $app = angular.module('poll', []);
+var $app = angular.module('poll', ['ngCookies']);
 
 $app.controller('PollCreateCtrl', function($scope, $http) {
   $scope.modified = [];
@@ -34,15 +34,19 @@ $app.controller('PollCreateCtrl', function($scope, $http) {
   };
 });
 
-$app.controller('PollVoteCtrl', function($scope, $http, $element) {
+$app.controller('PollVoteCtrl', function($scope, $http, $element, $cookieStore) {
+  var pollId = $element[0].dataset.pollId;
+
   $scope.poll = null;
   $scope.vote = null;
 
-  var pollId = $element[0].dataset.pollId;
+  var voteKey = 'vote/' + pollId;
+  $scope.currentVote = $cookieStore.get(voteKey);
 
   $scope.submitVote = function() {
-    $http.put('/poll/' + pollId, { vote: $scope.vote })
+    $http.put('/poll/' + pollId, { vote: +$scope.vote })
       .success(function(data) {
+        $cookieStore.put(voteKey, +$scope.vote);
         // TODO: Pull from response JSON.
         window.location.pathname = '/' + pollId + '/r';
       })

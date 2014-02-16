@@ -3,13 +3,23 @@
   <h1 class="title">{{poll.title}}</h1>
   <ol class="options">
     <li class="option" ng-repeat="option in poll.options track by $index">
-      <input type="radio" id="options-{{$index}}" name="options" value="{{$index}}" ng-model="$parent.vote" />
+      <input type="radio"
+        id="options-{{$index}}"
+        name="options"
+        value="{{$index}}"
+        ng-model="$parent.vote"
+        ng-checked="currentVote == $index"
+        ng-disabled="currentVote != null"
+      />
       <label for="options-{{$index}}"><i class="fa"></i> {{option}}</label>
     </li>
   </ol>
   <center>
+    <div class="notice" ng-if="currentVote != null">
+      You have already voted on this poll.
+    </div>
     <div class="actions">
-      <input type="submit" id="vote-now" class="action" value="Vote Now" />
+      <input type="submit" id="vote-now" class="action" value="Vote Now" ng-disabled="currentVote != null" />
       <a href="<%= @id %>/r" class="action">See Results</a>
     </div>
   </center>
