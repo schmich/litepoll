@@ -80,7 +80,7 @@ $app.controller('PollResultCtrl', function($scope, $http, $element) {
     });
 
     
-  var client = new Faye.Client('/faye');
+  var client = new Faye.Client('/stream');
   var subscription = client.subscribe('/poll/' + pollId, function(message) {
     if ($scope.poll == null)
       return;

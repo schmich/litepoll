@@ -1,13 +1,15 @@
-// TODO: Redirect www.litepoll.com -> litepoll.com
-// TODO: Mobile-responsive layout
-// TODO: Mobile: after creating poll, show intermediate "share" screen with:
-//    1) Big button to share on Twitter (intent)
-//    2) Big button to share on FB
-//    3) Big button to share on Reddit
-//    4) Big button to share via email/...
-//    5) Button/link to poll
-// TODO: Set expiration on keys
-// TODO: Use LocalStorage for "recent questions"
-// TODO: Use cookies/LocalStorage as front-line defense for stopping duplicate votes
-// TODO: Have /api path for JSON calls
-// TODO: Redis error handling
+- Redirect www.litepoll.com -> litepoll.com
+- Mobile-responsive layout
+- Mobile: after creating poll, show intermediate "share" screen with:
+  - Big button to share on Twitter (intent)
+  - Big button to share on FB
+  - Big button to share on Reddit
+  - Big button to share via email/...
+  - Button/link to poll
+- Set expiration on keys
+- Use LocalStorage for "recent questions"
+- Use cookies/LocalStorage as front-line defense for stopping duplicate votes
+- Have /api path for JSON calls
+- Redis error handling
+- Use promises
+- Remove normalize.css (use only necessary rules)

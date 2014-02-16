@@ -31,7 +31,7 @@ body {
   background: #f7f7f7;
 }
 h1 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 200;
 }
 ol, ul {
@@ -55,11 +55,18 @@ input[type="radio"] + label {
 input[type="radio"] + label, .results .option {
   padding: 9px 10px;
 }
+.container {
+  min-height: 100%;
+  width: 900px;
+  margin: 0 auto;
+  background: white;
+}
 .results .option {
+  padding-left: 0;
   margin-bottom: 10px;
 }
 input[type="radio"] + label .fa {
-  color: #ddd;
+  color: #ccc;
   margin-right: 5px;
 }
 input[type="radio"] + label:hover .fa {
@@ -97,19 +104,20 @@ input[type="radio"]:checked + label {
   margin-top: 30px;
 }
 .results .title {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 #vote-poll .title, .results .votes {
   margin-bottom: 20px;
 }
+.results .votes {
+  color: #777;
+  font-size: 24px;
+}
 #vote-poll .options {
   list-style-type: none;
 }
-#vote-poll #vote {
-  float: left;
-}
-#vote-poll #results {
-  float: right;
+#vote-now {
+  margin-right: 20px;
 }
 .action {
   text-decoration: none;
@@ -126,16 +134,11 @@ input[type="radio"]:checked + label {
 .action:focus {
   outline: 1px solid #79f;
 }
-.container {
-  min-height: 100%;
-  width: 900px;
-  margin: 0 auto;
-  background: white;
-}
-.percent {
+.option .value {
   position: relative;
-  display: block;
+  display: inline-block;
   width: 100%;
+  z-index: 1;
   padding: 5px 9px;
 }
 .fill {
@@ -148,4 +151,10 @@ input[type="radio"]:checked + label {
 .caption {
   position: relative;
   z-index: 1;
+}
+.stats {
+  margin-left: 10px;
+  display: inline-block;
+  font-size: 24px;
+  color: #777;
 }

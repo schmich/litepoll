@@ -5,15 +5,13 @@
     <div class="votes">{{totalVotes | plural:'vote' | titleCase}}</div>
     <ol>
       <li class="option" ng-repeat="option in poll.options | orderBy:'-votes' track by $index">
-        <div class="value">{{option.option}}</div>
-        <div class="percent">
-          <div class="fill" style="width: {{option.votes / totalVotes | percent:2}}">
-          </div>
-          <div class="caption">
-           {{option.votes / totalVotes | percent:0}} &middot; {{option.votes | plural:'vote' | titleCase}}
-          </div>
+        <div class="value">
+          <div class="caption">{{option.option}}</div>
+          <div class="fill" style="width: {{option.votes / totalVotes | percent:2}}"></div>
         </div>
-      </div>
+        <div class="stats">
+         {{option.votes / totalVotes | percent:0}} &middot; {{option.votes | plural:'vote' | titleCase}}
+        </div>
       </li>
     </ol>
   </div>
