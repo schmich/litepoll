@@ -1,4 +1,4 @@
-var $app = angular.module('poll', ['ngCookies']);
+var $app = angular.module('litepoll', ['ngCookies']);
 
 $app.controller('PollCreateCtrl', function($scope, $http) {
   $scope.modified = [];
