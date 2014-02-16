@@ -8,7 +8,12 @@ $app.controller('PollCreateCtrl', function($scope, $http) {
     options: ['', '', '', '']
   };
 
-  $scope.dirtied = function(index) {
+  $scope.keydown = function(ev, index) {
+    /* Ignore: shift, ctrl, alt, caps, meta, meta */
+    if ([16, 17, 18, 20, 91, 92].indexOf(ev.keyCode) >= 0) {
+      return;
+    }
+
     if (index == $scope.poll.options.length - 1) {
       $scope.poll.options.push('');
     }
@@ -155,27 +160,6 @@ $app.directive('ngEnterTab', function($parse) {
               break;
             }
           }
-        }
-      });
-    }
-  };
-});
-
-$app.directive('ngDirtied', function($parse) {
-  return {
-    restrict: 'A',
-    link: function(scope, elem, attr) {
-      var origValue = null;
-      elem.on('focus', function() {
-        if (origValue == null)
-          origValue = elem.val();
-      });
-
-      elem.on('keyup', function() {
-        if (elem.val() != origValue) {
-          scope.$apply(function() {
-            scope.$eval(attr.ngDirtied);
-          });
         }
       });
     }

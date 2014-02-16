@@ -14,7 +14,7 @@
     <li ng-repeat="option in poll.options track by $index">
       <input type="text"
         name="options"
-        ng-dirtied="dirtied($index)"
+        ng-keydown="keydown($event, $index)"
         ng-model="poll.options[$index]"
         ng-enter-tab="true"
         placeholder="Option {{$index + 1}}"
