@@ -1,5 +1,7 @@
+var Poll = require('../poll');
 var redis = require('../redis');
 var streaming = require('../streaming');
+var underscore = require('underscore');
 
 function pollNotFound(res, pollId) {
   notFound(res, "Question '" + pollId + "' does not exist.");
@@ -47,40 +49,36 @@ exports.create = function(req, res) {
     return error(res, "Number of options must not exceed 32.")
   }
 
-  redis.incr('max-id', function(err, value) {
-    var id = (+value).toString(36);
-    var qid = 'q:' + id;
+  var votes = [];
+  for (var i = 0; i < options.length; ++i) {
+    votes.push(0);
+  }
 
-    redis.set(qid + ':t', title, function(err) {
-      var votes = [];
-      for (var i = 0; i < req.body.options.length; ++i) {
-        votes.push(0);
-        votes.push(i);
-      }
+  var poll = new Poll({
+    title: title,
+    opts: options,
+    votes: votes
+  });
 
-      votes.unshift(qid + ':v');
-
-      redis.send_command('zadd', votes, function(err) {
-        var args = options.reverse();
-        args.unshift(qid + ':o');
-
-        redis.send_command('lpush', args, function(err) {
-          res.send(201, { path: { web: '/' + id, api: '/poll/' + id } });
-        });
-      });
-    });
+  poll.save(function() {
+    // TODO: Check for errors.
+    var id = poll._id;
+    res.send(201, { path: { web: '/' + id, api: '/poll/' + id } });
   });
 };
 
 // TODO: Validate: must have vote.
 // TODO: Check IPs
-// TODO: Scrub input (id).
-// TODO: Ensure id is within range (zcard)
 // PUT /:id
 exports.vote = function(req, res) {
-  var id = req.params.id;
-  if (!id) {
+  var encodedId = req.params.id;
+  if (!encodedId) {
     return error(res, "'id' is required.");
+  }
+
+  var id = parseInt(encodedId, 36);
+  if (isNaN(id)) {
+    return error(res, "'id' is invalid.");
   }
 
   var vote = req.body.vote;
@@ -97,48 +95,36 @@ exports.vote = function(req, res) {
     return error(res, "'vote' must be in range.");
   }
 
-  var key = 'q:' + id + ':v';
-  redis.exists(key, function(err, exists) {
-    if (!exists) {
-      return pollNotFound(res, id);
+  var update = { $inc: { } };
+  update['$inc']['votes.' + voteIndex] = 1;
+
+  Poll.update({ _id:  id }, update, {}, function(err, affected) {
+    if (affected == 0) {
+      return error(res, "'id' not found or 'vote' not in range.");
     } else {
-      redis.zcard(key, function(err, card) {
-        if (voteIndex >= card) {
-          return error(res, "'vote' must be in range.");
-        } else {
-          redis.zincrby(key, 1, voteIndex, function(err) {
-            res.send({});
-            streaming.getClient().publish('/poll/' + id, { vote: voteIndex });
-          });
-        }
-      });
+      res.send({});
+      streaming.getClient().publish('/poll/' + encodedId, { vote: voteIndex });
     }
   });
 };
 
 exports.showJson = function(req, res) {
-  var id = req.params.id;
-  var qid = 'q:' + id;
-  redis.get(qid + ':t', function(err, title) {
-    if (title == null) {
-      // A null title means the key (poll) does not exist. 
-      return pollNotFound(res, id);
+  var encodedId = req.params.id;
+  if (!encodedId) {
+    return error(res, "'id' is required.");
+  }
+
+  var id = parseInt(encodedId, 36);
+  if (isNaN(id)) {
+    return error(res, "'id' is invalid.");
+  }
+
+  Poll.findOne({ _id: id }, function(err, poll) {
+    if (err) {
+      return pollNotFound(res, encodedId);
+    } else {
+      res.send({ title: poll.title, options: underscore.zip(poll.opts, poll.votes) });
     }
-
-    redis.lrange(qid + ':o', 0, -1, function(err, options) {
-      var optionsVotes = [];
-      for (var i = 0; i < options.length; ++i) {
-        optionsVotes.push({ option: options[i], votes: 0 });
-      }
-
-      redis.send_command('zrange', [qid + ':v', '0', '-1', 'withscores'], function(err, votes) {
-        for (var i = 0; i < votes.length; i += 2) {
-          optionsVotes[+votes[i]].votes = +votes[i + 1];
-        }
-
-        res.send({ title: title, options: optionsVotes });
-      });
-    });
   });
 };
 

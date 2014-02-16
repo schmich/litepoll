@@ -65,7 +65,7 @@ $app.controller('PollResultCtrl', function($scope, $http, $element) {
   $scope.$watch('poll.options', function(options) {
     var total = 0;
     angular.forEach(options, function(option) {
-      total += option.votes;
+      total += option[1];
     });
 
     $scope.totalVotes = total;
@@ -79,6 +79,9 @@ $app.controller('PollResultCtrl', function($scope, $http, $element) {
     .error(function(data) {
     });
 
+  $scope.votes = function(item) {
+   return -item[1];
+  }
     
   var client = new Faye.Client('/stream');
   var subscription = client.subscribe('/poll/' + pollId, function(message) {
@@ -88,7 +91,7 @@ $app.controller('PollResultCtrl', function($scope, $http, $element) {
     var voteIndex = message.vote;
     if (voteIndex != null && voteIndex >= 0 && voteIndex < $scope.poll.options.length) {
       $scope.$apply(function() {
-        $scope.poll.options[voteIndex].votes++;
+        $scope.poll.options[voteIndex][1]++;
       });
     }
   });

@@ -4,7 +4,7 @@
   <ol class="options">
     <li class="option" ng-repeat="option in poll.options track by $index">
       <input type="radio" id="options-{{$index}}" name="options" value="{{$index}}" ng-model="$parent.vote" />
-      <label for="options-{{$index}}"><i class="fa"></i> {{option.option}}</label>
+      <label for="options-{{$index}}"><i class="fa"></i> {{option[0]}}</label>
     </li>
   </ol>
   <center>
