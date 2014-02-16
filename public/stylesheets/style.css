@@ -145,7 +145,7 @@ input[type="radio"]:checked + label {
   width: 210px;
 }
 .action:hover, .action:focus {
-  background: #79f;
+  background: #2e4;
   text-decoration: none;
 }
 .action:focus {
