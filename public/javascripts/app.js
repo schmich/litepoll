@@ -72,10 +72,32 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
     });
 });
 
+app.controller('CopyCtrl', function($scope) {
+  $scope.copied = false;
+  $scope.cantCopy = false;
+
+  ZeroClipboard.config({ moviePath: "/assets/javascripts/ZeroClipboard.swf" });
+  var client = new ZeroClipboard(document.getElementById("copy-link"));
+  client.on('noflash', function() {
+    $scope.$apply(function() {
+      $scope.cantCopy = true;
+    });
+  });
+
+  client.on("load", function(client) {
+    client.on("complete", function() {
+      $scope.$apply(function() {
+        $scope.copied = true;
+      });
+    });
+  });
+});
+
 app.controller('PollShareCtrl', function($scope, $http, $element) {
   var pollId = $element[0].dataset.pollId;
 
   $scope.link = window.location.protocol + '//' + window.location.host + '/' + pollId;
+  $scope.shortLink = window.location.host + '/' + pollId;
 
   $http.get('/polls/' + pollId + '/options')
     .success(function(poll) {

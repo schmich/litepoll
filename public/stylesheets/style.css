@@ -14,18 +14,21 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.fa-copy:before {
+  content: "\f0c1";
+}
 html, body, form, ol, ul, li, h1, h2, h3, h4 {
   margin: 0;
   padding: 0;
 }
 * {
   box-sizing: border-box;
+}
+html, body, input {
+  height: 100%;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 28px;
   font-weight: 200;
-}
-html, body {
-  height: 100%;
 }
 body {
   background: #f7f7f7;
@@ -222,6 +225,33 @@ input[type="radio"]:checked + label {
   height: 32px;
   margin: 0 auto;
   background: url('/assets/images/logo.png') no-repeat;
+}
+.poll-link {
+  display: block;
+  color: black;
+  margin-bottom: 40px;
+}
+.poll-link a {
+  color: #3c5;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+}
+.poll-link a:hover {
+  color: #0a0;
+}
+#copy-link, .copied {
+  font-size: 22px;
+  color: #777;
+}
+#copy-link {
+  cursor: pointer;
+}
+#copy-link .fa {
+  margin-right: 5px;
+}
+#copy-link.zeroclipboard-is-hover {
+  color: #222;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),

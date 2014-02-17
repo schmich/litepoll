@@ -1,7 +1,6 @@
 - Determine expiration for IP vote tracking Redis keys
 - Fix fonts on Windows
 - Minify/concat JS and CSS
-- "Share Poll" link from poll itself?
 - Surface HTTP errors to user
 - Add necessary meta tags for FB share support
   - Requires generation of HTML on server-side

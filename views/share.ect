@@ -1,9 +1,16 @@
 <% extend 'layout.ect' %>
-<script type="text/javascript" src="/stream/client.js"></script>
+<script src="/assets/javascripts/ZeroClipboard.min.js"></script>
 <div ng-controller="PollShareCtrl" data-poll-id="<%= @id %>">
   <div class="share-links">
-    Poll created!
-    <a href="{{link}}" class="action share view-poll">View Poll</a>
+    <div class="poll-link">
+      <a href="{{link}}">{{shortLink}}</a>
+      <div ng-controller="CopyCtrl">
+        <div ng-hide="cantCopy" data-clipboard-text="{{link}}" id="copy-link">
+          <div ng-if="!copied"><i class="fa fa-copy"></i> Copy poll link</div>
+        </div>
+        <div ng-if="copied" class="copied">Copied!</div>
+      </div>
+    </div>
     Share your poll: 
     <a href="{{twitterLink}}" class="action share twitter">Twitter</a>
     <a href="{{facebookLink}}" class="action share facebook">Facebook</a>
