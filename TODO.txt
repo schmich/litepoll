@@ -1,6 +1,5 @@
 - Determine expiration for IP vote tracking Redis keys
 - Fix fonts on Windows
-- Serve static content from nginx, enable gzip
 - Minify/concat JS and CSS
 - "Share Poll" link from poll itself?
 - Surface HTTP errors to user

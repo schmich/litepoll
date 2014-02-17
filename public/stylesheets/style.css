@@ -150,7 +150,7 @@ input[type="radio"]:checked + label {
   text-decoration: none;
 }
 .action:focus {
-  outline: 1px solid #79f;
+  outline: 1px solid #3c5;
 }
 .action:disabled {
   background: #aaa;
