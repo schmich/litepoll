@@ -1,4 +1,4 @@
-var app = angular.module('litepoll', ['ngCookies']);
+var app = angular.module('litepoll', [])
 
 app.config(['$compileProvider', function($compileProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(http|https|sms|mailto).*/);
@@ -44,19 +44,19 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   };
 });
 
-app.controller('PollVoteCtrl', function($scope, $http, $element, $cookieStore) {
+app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageService) {
   var pollId = $element[0].dataset.pollId;
 
   $scope.poll = null;
   $scope.vote = null;
 
-  var voteKey = 'vote/' + pollId;
-  $scope.currentVote = $cookieStore.get(voteKey);
+  var voteKey = 'vote:' + pollId;
+  $scope.currentVote = localStorageService.get(voteKey);
 
   $scope.submitVote = function() {
     $http.put('/poll/' + pollId, { vote: +$scope.vote })
       .success(function(data) {
-        $cookieStore.put(voteKey, +$scope.vote);
+        localStorageService.set(voteKey, +$scope.vote);
         // TODO: Pull from response JSON.
         window.location.pathname = '/' + pollId + '/r';
       })
@@ -84,10 +84,6 @@ app.controller('PollShareCtrl', function($scope, $http, $element) {
       var twitterText = "Vote in my poll: " + poll.title;
       $scope.twitterLink = "https://twitter.com/intent/tweet?text=" + u(twitterText) + "&url=" + u($scope.link);
 
-      // TODO: Add the following to the page to fix FB sharing:
-      // <meta property="og:title" content="http://litepoll.com/2ez" />
-      // <meta property="og:description" content="poll.title" />
-      // <meta property="og:site_name" content="Litepoll">
       var facebookTitle = poll.title;
       var facebookSummary = "Vote in my poll now!";
       $scope.facebookLink = "https://www.facebook.com/sharer.php?s=100&p%5Burl%5D=" + u($scope.link)
@@ -176,6 +172,37 @@ app.filter('titleCase', function() {
 
     return input[0].toUpperCase() + input.substr(1);
   };
+});
+
+app.factory('localStorageService', function() {
+  function supported() {
+    var test = "test";
+    try {
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  if (supported) {
+    return {
+      set: function(key, value) {
+        localStorage.setItem(key, value);
+      },
+      get: function(key) {
+        return localStorage.getItem(key);
+      }
+    }
+  } else {
+    return {
+      set: function(key, value) { },
+      get: function(key) {
+        return null;
+      }
+    }
+  }
 });
 
 app.directive('ngEnterTab', function($parse) {
