@@ -2,6 +2,7 @@ var Poll = require('../poll');
 var redis = require('../redis');
 var streaming = require('../streaming');
 var underscore = require('underscore');
+var encoding = require('../encoding');
 
 function pollNotFound(res, pollId) {
   notFound(res, "Question '" + pollId + "' does not exist.");
@@ -82,7 +83,7 @@ exports.create = function(req, res) {
 
   poll.save(function() {
     // TODO: Check for errors.
-    var encodedId = poll._id.toString(36);
+    var encodedId = encoding.fromNumber(poll._id);
     res.send(201, { path: { web: '/' + encodedId + '/s', api: '/poll/' + encodedId } });
 
     redisCacheOptions(poll);
@@ -98,7 +99,7 @@ exports.vote = function(req, res) {
     return error(res, "'id' is required.");
   }
 
-  var id = parseInt(encodedId, 36);
+  var id = encoding.toNumber(encodedId);
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
@@ -149,7 +150,7 @@ exports.options = function(req, res) {
     return error(res, "'id' is required.");
   }
 
-  var id = parseInt(encodedId, 36);
+  var id = encoding.toNumber(encodedId);
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
@@ -177,7 +178,7 @@ exports.showJson = function(req, res) {
     return error(res, "'id' is required.");
   }
 
-  var id = parseInt(encodedId, 36);
+  var id = encoding.toNumber(encodedId);
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
