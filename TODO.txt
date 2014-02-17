@@ -2,9 +2,12 @@
 - Surface HTTP errors to user
 - Fix TODOs
 - Minify/concat JS and CSS
-- Serve static content from nginx
+- Serve static content from nginx, enable gzip
 - "Share Poll" link from poll itself?
-- Set cache headers for various URLs (e.g. /polls/1/options)
+- Consolidate/compress cookies to reduce upload from client
+  - Use localStorage first, if available (zero bandwidth footprint, cookies not used by server)
+- Determine expiration for IP vote tracking Redis keys
+- Fix fonts on Windows
 
 Later:
 - Use LocalStorage for "recent questions"

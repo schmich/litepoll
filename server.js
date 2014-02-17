@@ -8,7 +8,6 @@ var streaming = require('./streaming');
 
 var app = express();
 
-// All environments.
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ect');
@@ -21,10 +20,15 @@ app.use(app.router);
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('views') }).render);
 
-// Development only.
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
+app.configure('development', function() {
+  console.log('Mode: development');
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+});
+
+app.configure('production', function() {
+  console.log('Mode: production');
+  app.use(express.errorHandler()); 
+});
 
 app.post('/poll', api.create);
 app.get('/poll/:id', api.show);

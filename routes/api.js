@@ -3,6 +3,7 @@ var redis = require('../redis');
 var streaming = require('../streaming');
 var underscore = require('underscore');
 var encoding = require('../encoding');
+var moment = require('moment');
 
 function pollNotFound(res, pollId) {
   notFound(res, "Question '" + pollId + "' does not exist.");
@@ -34,6 +35,16 @@ function redisCacheOptions(poll) {
       redis.expire(key, 15 * 60 /* 15 minutes */);
     }
   });
+}
+
+function maxCache(res, seconds) {
+  cache(res, 60 * 60 * 24 * 365 /* One year */);
+}
+
+function cache(res, seconds) {
+  var expires = moment().utc().add('years', 1);
+  res.set('Cache-Control', 'public, max-age=' + seconds);
+  res.set('Expires', expires.format('ddd, D MMM YYYY HH:mm:ss [GMT]'));
 }
 
 exports.create = function(req, res) {
@@ -86,8 +97,6 @@ exports.create = function(req, res) {
   });
 };
 
-// TODO: Validate: must have vote.
-// TODO: Check IPs
 // PUT /:id
 exports.vote = function(req, res) {
   var encodedId = req.params.id;
@@ -154,10 +163,12 @@ exports.options = function(req, res) {
   redis.get('q:' + id, function(err, cache) {
     if (cache) {
       var poll = JSON.parse(cache);
+      maxCache(res);
       res.send(poll);
     } else {
       mongoGetPoll(id, function(poll) {
         if (poll) {
+          maxCache(res);
           res.send({ title: poll.title, options: poll.opts });
           redisCacheOptions(poll);
         } else {
