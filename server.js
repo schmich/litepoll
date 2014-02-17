@@ -19,6 +19,7 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('views') }).render);
+app.enable('trust proxy');
 
 app.configure('development', function() {
   console.log('Mode: development');

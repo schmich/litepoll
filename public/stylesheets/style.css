@@ -243,7 +243,7 @@ only screen and (min-resolution: 2dppx) {
     margin: 0 15px;
   }
   #vote-now {
-    margin: 0 0 10px 0;
+    margin: 0 0 20px 0;
   }
   #vote-now, #see-results {
     display: block;
