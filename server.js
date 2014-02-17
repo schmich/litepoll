@@ -33,10 +33,10 @@ app.configure('production', function() {
   app.use(express.errorHandler()); 
 });
 
-app.post('/poll', api.create);
-app.get('/poll/:id', api.show);
-app.get('/poll/:id/options', api.options);
-app.put('/poll/:id', api.vote);
+app.post('/polls', api.create);
+app.get('/polls/:id', api.show);
+app.get('/polls/:id/options', api.options);
+app.put('/polls/:id', api.vote);
 app.get('/', poll.create);
 app.get('/:id', poll.show);
 app.get('/:id/r', poll.results);

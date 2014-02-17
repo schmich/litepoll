@@ -35,7 +35,7 @@ app.controller('PollCreateCtrl', function($scope, $http) {
       }
     }
 
-    $http.post('/poll', poll)
+    $http.post('/polls', poll)
       .success(function(data) {
         window.location.pathname = data.path.web;
       })
@@ -54,7 +54,7 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
   $scope.currentVote = localStorageService.get(voteKey);
 
   $scope.submitVote = function() {
-    $http.put('/poll/' + pollId, { vote: +$scope.vote })
+    $http.put('/polls/' + pollId, { vote: +$scope.vote })
       .success(function(data) {
         localStorageService.set(voteKey, +$scope.vote);
         // TODO: Pull from response JSON.
@@ -64,7 +64,7 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
       });
   };
 
-  $http.get('/poll/' + pollId + '/options')
+  $http.get('/polls/' + pollId + '/options')
     .success(function(data) {
       $scope.poll = data;
     })
@@ -77,7 +77,7 @@ app.controller('PollShareCtrl', function($scope, $http, $element) {
 
   $scope.link = window.location.protocol + '//' + window.location.host + '/' + pollId;
 
-  $http.get('/poll/' + pollId + '/options')
+  $http.get('/polls/' + pollId + '/options')
     .success(function(poll) {
       var u = encodeURIComponent;
 
@@ -118,7 +118,7 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   }, true);
 
   var pollId = $element[0].dataset.pollId;
-  $http.get('/poll/' + pollId)
+  $http.get('/polls/' + pollId)
     .success(function(data) {
       $scope.poll = data;
     })
@@ -130,7 +130,7 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   }
     
   var client = new Faye.Client('/stream');
-  var subscription = client.subscribe('/poll/' + pollId, function(votes) {
+  var subscription = client.subscribe('/polls/' + pollId, function(votes) {
     if ($scope.poll == null)
       return;
 

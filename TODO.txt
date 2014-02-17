@@ -1,4 +1,3 @@
-- Rename /poll -> /polls
 - Determine expiration for IP vote tracking Redis keys
 - Fix fonts on Windows
 - Minify/concat JS and CSS

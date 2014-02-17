@@ -92,8 +92,8 @@ exports.create = function(req, res) {
   poll.save(function() {
     // TODO: Check for errors.
     var encodedId = encoding.fromNumber(poll._id);
-    res.set('Location', '/poll/' + encodedId);
-    res.send(201, { path: { web: '/' + encodedId + '/s', api: '/poll/' + encodedId } });
+    res.set('Location', '/polls/' + encodedId);
+    res.send(201, { path: { web: '/' + encodedId + '/s', api: '/polls/' + encodedId } });
 
     redisCacheOptions(poll);
   });
@@ -141,7 +141,7 @@ exports.vote = function(req, res) {
           res.send({});
 
           // Notify clients of vote.
-          streaming.getClient().publish('/poll/' + encodedId, poll.votes);
+          streaming.getClient().publish('/polls/' + encodedId, poll.votes);
 
           // Ignore any errors when adding IP to the voted-IP list.
           redis.sadd(ipKey, ip);
