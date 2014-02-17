@@ -1,4 +1,5 @@
 var express = require('express');
+var api = require('./routes/api');
 var poll = require('./routes/poll');
 var http = require('http');
 var path = require('path');
@@ -25,12 +26,12 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', poll.createForm);
-app.post('/poll', poll.create);
-app.get('/poll/:id', poll.showJson);
-app.get('/poll/:id/options', poll.options);
-app.put('/poll/:id', poll.vote);
-app.get('/:id', poll.showHtml);
+app.post('/poll', api.create);
+app.get('/poll/:id', api.show);
+app.get('/poll/:id/options', api.options);
+app.put('/poll/:id', api.vote);
+app.get('/', poll.create);
+app.get('/:id', poll.show);
 app.get('/:id/r', poll.results);
 app.get('/:id/s', poll.share);
 

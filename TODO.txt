@@ -1,5 +1,10 @@
 - Add necessary meta tags for FB share support
-- Redirect www.litepoll.com -> litepoll.com
+- Surface HTTP errors to user
+- Fix TODOs
+- Minify/concat JS and CSS
+- Serve static content from nginx
+- "Share Poll" link from poll itself?
+- Set cache headers for various URLs (e.g. /polls/1/options)
 
 Later:
 - Use LocalStorage for "recent questions"
