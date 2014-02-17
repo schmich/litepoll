@@ -32,13 +32,13 @@ function redisCacheOptions(poll) {
   var key = 'q:' + poll._id;
   redis.set(key, JSON.stringify(cache), function(err) {
     if (!err) {
-      redis.expire(key, 15 * 60 /* 15 minutes */);
+      redis.expire(key, 60 * 60 /* 1 hour */);
     }
   });
 }
 
 function maxCache(res, seconds) {
-  cache(res, 60 * 60 * 24 * 365 /* One year */);
+  cache(res, 60 * 60 * 24 * 365 /* 1 year */);
 }
 
 function cache(res, seconds) {

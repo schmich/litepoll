@@ -11,7 +11,11 @@ var pollSchema = mongoose.Schema({
   creator: String
 });
 
-pollSchema.plugin(increment.plugin, 'Poll');
+pollSchema.plugin(increment.plugin, {
+  model: 'Poll',
+  startAt: 1000
+});
+
 var Poll = mongoose.model('Poll', pollSchema);
 
 module.exports = Poll;
