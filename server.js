@@ -3,12 +3,9 @@ var poll = require('./routes/poll');
 var http = require('http');
 var path = require('path');
 var ect = require('ect');
-var subdomains = require('express-subdomains');
 var streaming = require('./streaming');
 
 var app = express();
-
-subdomains.use('api');
 
 // All environments.
 app.set('port', process.env.PORT || 3000);
@@ -19,7 +16,6 @@ app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
-app.use(subdomains.middleware);
 app.use(app.router);
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('views') }).render);

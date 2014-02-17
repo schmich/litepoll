@@ -1,5 +1,4 @@
 - Add necessary meta tags for FB share support
-- Have /api path for JSON calls
 - Redirect www.litepoll.com -> litepoll.com
 
 Later:
