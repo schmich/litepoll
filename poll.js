@@ -7,7 +7,8 @@ increment.initialize(db);
 var pollSchema = mongoose.Schema({
   title: String,
   opts: [String],
-  votes: [Number]
+  votes: [Number],
+  creator: String
 });
 
 pollSchema.plugin(increment.plugin, 'Poll');

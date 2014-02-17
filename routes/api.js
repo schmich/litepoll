@@ -85,12 +85,14 @@ exports.create = function(req, res) {
   var poll = new Poll({
     title: title,
     opts: options,
-    votes: votes
+    votes: votes,
+    creator: req.ip
   });
 
   poll.save(function() {
     // TODO: Check for errors.
     var encodedId = encoding.fromNumber(poll._id);
+    res.set('Location', '/poll/' + encodedId);
     res.send(201, { path: { web: '/' + encodedId + '/s', api: '/poll/' + encodedId } });
 
     redisCacheOptions(poll);

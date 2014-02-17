@@ -1,3 +1,4 @@
+- Rename /poll -> /polls
 - Determine expiration for IP vote tracking Redis keys
 - Fix fonts on Windows
 - Minify/concat JS and CSS
@@ -14,3 +15,5 @@ Later:
 - Use LocalStorage for "recent questions"
 - Allow multiple votes (bounded, unbounded)
 - Use promises
+- Allow poll close by creator
+- Poll expiration (e.g. 2 minutes, then closed)
