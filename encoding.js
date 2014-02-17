@@ -8,10 +8,13 @@ Encoding = {
     var digit;
     var residual = Math.floor(number);
     var result = '';
-    while (residual != 0) {
+    while (true) {
       digit = residual % this.digits.length;
       result = this.digits.charAt(digit) + result;
       residual = Math.floor(residual / this.digits.length);
+
+      if (residual == 0)
+        break;
     }
 
     return result;
