@@ -1,3 +1,8 @@
+- Fix li bullet alignment with text on mobile when text wrap occurs (results page)
+- Investigate issue: "WebSocket connection to 'ws://litepoll.com/stream' failed: Error during WebSocket handshake: 'Connection' header value is not 'Upgrade': keep-alive"
+- Poll IDs should not be case sensitive
+- Add link to share poll at the bottom of the results (links to the /s page)
+- Padding above the "You have already voted..." should be larger
 - Determine expiration for IP vote tracking Redis keys
 - Fix fonts on Windows
 - Minify/concat JS and CSS
@@ -15,3 +20,7 @@ Later:
 - Use promises
 - Allow poll close by creator
 - Poll expiration (e.g. 2 minutes, then closed)
+- Poll creation: allow drag-drop re-ordering of the questions
+- Key-based protected polls (password sent in clear)
+- Show # of views on a poll (not just votes)
+- Make "progress bar" flash when a new vote comes in for that option
