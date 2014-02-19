@@ -64,17 +64,20 @@ input[type="radio"] + label, .results .option {
   margin: 0 auto;
   background: white;
   position: relative;
-  padding-bottom: 80px;
+  padding-bottom: 120px;
 }
 .footer {
   color: #888;
   font-size: 22px;
-  height: 80px;
-  padding: 30px;
+  height: 90px;
+  padding: 0 20px;
   overflow: hidden;
   position: absolute;
   bottom: 0;
   right: 0;
+}
+.footer nav {
+  line-height: 120px;
 }
 a {
   color: #4af;
@@ -240,7 +243,7 @@ input[type="radio"]:checked + label {
   color: #888;
 }
 .notice {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 .logo {
   width: 74px;

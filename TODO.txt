@@ -1,8 +1,12 @@
-- Fix li bullet alignment with text on mobile when text wrap occurs (results page)
+- Quick animations when showing poll results
+  - Animate width of results bars
+  - Odometer-style numbers
+  - ~100-200ms
+- Add a "Vote on this poll" link to poll results page
+  - Don't show this link if the user has already voted (via localStorage)
+- Fix overflowing text (options too large), overflow: hidden
 - Investigate issue: "WebSocket connection to 'ws://litepoll.com/stream' failed: Error during WebSocket handshake: 'Connection' header value is not 'Upgrade': keep-alive"
-- Poll IDs should not be case sensitive
 - Add link to share poll at the bottom of the results (links to the /s page)
-- Padding above the "You have already voted..." should be larger
 - Determine expiration for IP vote tracking Redis keys
 - Fix fonts on Windows
 - Minify/concat JS and CSS
@@ -15,6 +19,9 @@
 - Fix TODOs
 
 Later:
+- Internationalize
+  - Have a contributors page
+  - What about future strings? (use email/contact form)
 - Use LocalStorage for "recent questions"
 - Allow multiple votes (bounded, unbounded)
 - Use promises
@@ -23,4 +30,6 @@ Later:
 - Poll creation: allow drag-drop re-ordering of the questions
 - Key-based protected polls (password sent in clear)
 - Show # of views on a poll (not just votes)
+  - Use cookie to track "unique" views
 - Make "progress bar" flash when a new vote comes in for that option
+- Poll IDs should not be case sensitive?

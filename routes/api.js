@@ -129,7 +129,7 @@ exports.vote = function(req, res) {
   var ipKey = 'q:' + id + ':ip';
   redis.sismember(ipKey, ip, function(err, member) {
     if (member) {
-      return error(res, "You have already voted.");
+      return error(res, "You have already voted in this poll.");
     } else {
       var update = { $inc: { } };
       update['$inc']['votes.' + voteIndex] = 1;
