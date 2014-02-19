@@ -12,16 +12,24 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     options: ['', '', '', '']
   };
 
+  function maybeAddOption(index) {
+    var count = $scope.poll.options.length;
+    if ((count < 32) && (index == count - 1)) {
+      $scope.poll.options.push('');
+    }
+  }
+
+  $scope.change = function(ev, index) {
+    maybeAddOption(index);
+  }
+
   $scope.keydown = function(ev, index) {
     /* Ignore: tab, shift, ctrl, alt, caps, meta, meta */
     if ([9, 16, 17, 18, 20, 91, 92].indexOf(ev.keyCode) >= 0) {
       return;
     }
 
-    var count = $scope.poll.options.length;
-    if ((count < 32) && (index == count - 1)) {
-      $scope.poll.options.push('');
-    }
+    maybeAddOption(index);
   };
 
   $scope.createPoll = function() {

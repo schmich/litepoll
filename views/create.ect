@@ -17,6 +17,7 @@
       <input type="text"
         name="options"
         ng-keydown="keydown($event, $index)"
+        ng-change="change($event, $index)"
         ng-model="poll.options[$index]"
         ng-enter-tab="true"
         maxlength="140"
