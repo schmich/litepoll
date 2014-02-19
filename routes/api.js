@@ -111,26 +111,26 @@ exports.vote = function(req, res) {
     return error(res, "'id' is invalid.");
   }
 
+  var vote = req.body.vote;
+  if (vote == null) {
+    return error(res, "'vote' is required.");
+  }
+
+  var voteIndex = parseInt(vote);
+  if (isNaN(voteIndex) || !isFinite(voteIndex)) {
+    return error(res, "Integer 'vote' is required.");
+  }
+
+  if (voteIndex < 0) {
+    return error(res, "'vote' must be in range.");
+  }
+
   var ip = req.ip;
   var ipKey = 'q:' + id + ':ip';
   redis.sismember(ipKey, ip, function(err, member) {
     if (member) {
       return error(res, "You have already voted.");
     } else {
-      var vote = req.body.vote;
-      if (vote == null) {
-        return error(res, "'vote' is required.");
-      }
-
-      var voteIndex = +vote;
-      if (voteIndex != vote) {
-        return error(res, "Integer 'vote' is required.");
-      }
-
-      if (voteIndex < 0) {
-        return error(res, "'vote' must be in range.");
-      }
-
       var update = { $inc: { } };
       update['$inc']['votes.' + voteIndex] = 1;
 

@@ -19,7 +19,13 @@
       You have already voted in this poll.
     </div>
     <div class="actions">
-      <input type="submit" id="vote-now" class="action" value="Vote Now" ng-disabled="currentVote != null" />
+      <input type="submit"
+        title="{{(currentVote != null || vote == null) && 'Select an option first' || ''}}"
+        id="vote-now"
+        class="action"
+        value="Vote Now"
+        ng-disabled="currentVote != null || vote == null"
+      />
       <a href="/<%= @id %>/r" id="see-results" class="action">See Results</a>
     </div>
   </center>
