@@ -62,8 +62,26 @@ input[type="radio"] + label, .results .option {
   min-height: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding-bottom: 40px;
   background: white;
+  position: relative;
+  padding-bottom: 80px;
+}
+.footer {
+  color: #888;
+  font-size: 22px;
+  height: 80px;
+  padding: 30px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+a {
+  color: #4af;
+  text-decoration: none;
+}
+a:hover {
+  color: #17f;
 }
 .content {
   margin: 0 40px;
@@ -153,6 +171,7 @@ input[type="radio"]:checked + label {
 }
 .action:hover, .action:focus {
   background: #17f;
+  color: #fff;
   text-decoration: none;
 }
 .action:focus {
@@ -255,6 +274,13 @@ input[type="radio"]:checked + label {
 }
 #copy-link.zeroclipboard-is-hover {
   color: #222;
+}
+.translate {
+  font-size: 22px;
+  line-height: 140%;
+}
+.translate h1 {
+  font-size: 28px;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),

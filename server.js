@@ -1,6 +1,7 @@
 var express = require('express');
 var api = require('./routes/api');
 var poll = require('./routes/poll');
+var pages = require('./routes/pages');
 var http = require('http');
 var path = require('path');
 var ect = require('ect');
@@ -33,6 +34,7 @@ app.configure('production', function() {
   app.use(express.errorHandler()); 
 });
 
+app.get('/translate', pages.translate);
 app.post('/polls', api.create);
 app.get('/polls/:id', api.show);
 app.get('/polls/:id/options', api.options);
