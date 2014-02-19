@@ -69,6 +69,7 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
         window.location.pathname = '/' + pollId + '/r';
       })
       .error(function(data) {
+        alert(data.error);
       });
   };
 
