@@ -102,6 +102,9 @@ a:hover {
 .results .option {
   padding-left: 0;
 }
+.results .action {
+  margin-top: 30px;
+}
 input[type="radio"] + label .fa {
   color: #ccc;
   margin-right: 5px;
