@@ -26,7 +26,7 @@ html, body, form, ol, ul, li, h1, h2, h3, h4 {
 }
 html, body, input {
   height: 100%;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Helvetica Neue', Calibri, Arial, sans-serif;
   font-size: 28px;
   font-weight: 200;
 }
