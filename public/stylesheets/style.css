@@ -86,10 +86,10 @@ input[type="radio"] + label .fa {
   margin-right: 5px;
 }
 input[type="radio"]:not(:disabled) + label:hover .fa {
-  color: #3c5;
+  color: #4af;
 }
 input[type="radio"]:not(:disabled) + label:hover {
-  color: #3c5;
+  color: #4af;
 }
 input[type="radio"]:disabled + label:hover {
   cursor: default;
@@ -102,11 +102,11 @@ input[type="radio"] + label .fa:before {
   margin-right: 3px;
 }
 input[type="radio"]:checked + label .fa:before {
-  color: #3c5;
+  color: #4af;
   content: "\f111";
 }
 input[type="radio"]:checked + label {
-  color: #2b4;
+  color: #4af;
 }
 #create-poll #title {
   margin: 0 10px 10px 0;
@@ -131,7 +131,7 @@ input[type="radio"]:checked + label {
   margin-bottom: 20px;
 }
 .results .votes {
-  color: #777;
+  color: #888;
   font-size: 24px;
 }
 #vote-poll .options {
@@ -143,7 +143,7 @@ input[type="radio"]:checked + label {
 .action {
   text-align: center;
   text-decoration: none;
-  background: #3c5;
+  background: #4af;
   color: #fff;
   border: 0;
   padding: 15px 30px;
@@ -152,11 +152,11 @@ input[type="radio"]:checked + label {
   width: 210px;
 }
 .action:hover, .action:focus {
-  background: #1b3;
+  background: #17f;
   text-decoration: none;
 }
 .action:focus {
-  outline: 1px solid #3c5;
+  outline: 1px solid #17f;
 }
 .action:disabled {
   background: #aaa;
@@ -200,25 +200,25 @@ input[type="radio"]:checked + label {
   position: relative;
   display: inline-block;
   width: 100%;
+  padding-left: 5px;
   z-index: 1;
-  padding: 5px 9px;
 }
 .fill {
   position: absolute;
   top: 0;
   left: 0;
-  background: #3c5;
-  height: 100%;
+  background: #4af;
+  height: 35px;
 }
 .caption {
   position: relative;
   z-index: 1;
 }
 .stats {
-  margin-left: 10px;
   display: inline-block;
+  padding-left: 5px;
   font-size: 24px;
-  color: #777;
+  color: #888;
 }
 .notice {
   margin-top: 20px;
@@ -235,13 +235,13 @@ input[type="radio"]:checked + label {
   margin-bottom: 40px;
 }
 .poll-link a {
-  color: #3c5;
+  color: #4af;
   text-decoration: none;
   display: block;
   margin-bottom: 10px;
 }
 .poll-link a:hover {
-  color: #0a0;
+  color: #17f;
 }
 #copy-link, .copied {
   font-size: 22px;
