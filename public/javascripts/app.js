@@ -84,17 +84,15 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
 
 app.controller('CopyCtrl', function($scope) {
   $scope.copied = false;
-  $scope.cantCopy = false;
+  $scope.canCopy = false;
 
   ZeroClipboard.config({ moviePath: "/assets/javascripts/ZeroClipboard.swf" });
   var client = new ZeroClipboard(document.getElementById("copy-link"));
-  client.on('noflash', function() {
-    $scope.$apply(function() {
-      $scope.cantCopy = true;
-    });
-  });
 
   client.on("load", function(client) {
+    $scope.$apply(function() {
+      $scope.canCopy = true;
+    });
     client.on("complete", function() {
       $scope.$apply(function() {
         $scope.copied = true;

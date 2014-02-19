@@ -5,7 +5,7 @@
     <div class="poll-link">
       <a href="{{link}}">{{shortLink}}</a>
       <div ng-controller="CopyCtrl">
-        <div ng-hide="cantCopy" data-clipboard-text="{{link}}" id="copy-link">
+        <div ng-show="canCopy" data-clipboard-text="{{link}}" id="copy-link">
           <div ng-if="!copied"><i class="fa fa-copy"></i> Copy poll link</div>
         </div>
         <div ng-if="copied" class="copied">Copied!</div>
