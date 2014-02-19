@@ -21,11 +21,19 @@ Encoding = {
   },
 
   toNumber : function(encoded) {
+    if (!encoded)
+      return NaN;
+
     var result = 0;
 
     encoded = encoded.split('');
     for (e in encoded) {
-      result = (result * this.digits.length) + this.digits.indexOf(encoded[e]);
+      var index = this.digits.indexOf(encoded[e]);
+      if (index < 0) {
+        return NaN;
+      }
+
+      result = (result * this.digits.length) + index;
     }
 
     return result;
