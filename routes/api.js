@@ -64,7 +64,7 @@ exports.create = function(req, res) {
   }
 
   options.forEach(function(option) {
-    if (!option && !option.trim()) {
+    if (!option || !option.trim()) {
       return error(res, "'options' must not be empty.");
     } else if (option.length > 140) {
       return error(res, "Option length must not exceed 140 characters.")
