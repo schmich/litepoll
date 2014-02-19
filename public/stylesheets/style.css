@@ -75,6 +75,9 @@ input[type="radio"] + label, .results .option {
 .header img {
   vertical-align: middle;
 }
+.results .option .value {
+  vertical-align: text-top;
+}
 .results .option {
   padding-left: 0;
 }
