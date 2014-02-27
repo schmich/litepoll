@@ -5,7 +5,7 @@ var pages = require('./routes/pages');
 var http = require('http');
 var path = require('path');
 var ect = require('ect');
-var streaming = require('./streaming');
+var streaming = require('./lib/streaming');
 
 var app = express();
 

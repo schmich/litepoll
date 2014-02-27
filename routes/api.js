@@ -1,8 +1,8 @@
-var Poll = require('../poll');
-var redis = require('../redis');
-var streaming = require('../streaming');
+var Poll = require('../lib/poll');
+var redis = require('../lib/redis');
+var streaming = require('../lib/streaming');
 var underscore = require('underscore');
-var encoding = require('../encoding');
+var encoding = require('../lib/encoding');
 var moment = require('moment');
 
 function pollNotFound(res, pollId) {
