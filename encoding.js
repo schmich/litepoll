@@ -5,11 +5,10 @@ Encoding = {
     if (isNaN(Number(number)) || number === null || number === Number.POSITIVE_INFINITY || number < 0)
       throw "Invalid number";
 
-    var digit;
     var residual = Math.floor(number);
     var result = '';
     while (true) {
-      digit = residual % this.digits.length;
+      var digit = residual % this.digits.length;
       result = this.digits.charAt(digit) + result;
       residual = Math.floor(residual / this.digits.length);
 
