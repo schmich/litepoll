@@ -235,7 +235,7 @@ app.factory('localStorageService', function() {
   }
 });
 
-app.directive('ngEnterTab', function($parse) {
+app.directive('ngEnterTab', function() {
   return {
     restrict: 'A',
     link: function(scope, elem, attr) {
