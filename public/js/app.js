@@ -86,7 +86,7 @@ app.controller('CopyCtrl', function($scope) {
   $scope.copied = false;
   $scope.canCopy = false;
 
-  ZeroClipboard.config({ moviePath: "/assets/javascripts/ZeroClipboard.swf" });
+  ZeroClipboard.config({ moviePath: "/assets/js/ZeroClipboard.swf" });
   var client = new ZeroClipboard(document.getElementById("copy-link"));
 
   client.on("load", function(client) {

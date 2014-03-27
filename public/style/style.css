@@ -252,7 +252,7 @@ input[type="radio"]:checked + label {
   width: 74px;
   height: 32px;
   margin: 0 auto;
-  background: url('/assets/images/logo.png') no-repeat;
+  background: url('/assets/img/logo.png') no-repeat;
 }
 .poll-link {
   display: block;
@@ -304,7 +304,7 @@ only screen and (-o-min-device-pixel-ratio: 2/1),
 only screen and (min-device-pixel-ratio: 2),
 only screen and (min-resolution: 2dppx) { 
   .logo {
-    background: url('/assets/images/logo@2x.png') no-repeat;
+    background: url('/assets/img/logo@2x.png') no-repeat;
     background-size: contain;
   }
 }
