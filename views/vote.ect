@@ -24,7 +24,8 @@
         id="vote-now"
         class="action"
         value="Vote Now"
-        ng-disabled="currentVote != null || vote == null"
+        ng-disabled="vote == null"
+        ng-hide="currentVote != null"
       />
       <a href="/<%= @id %>/r" id="see-results" class="action">See Results</a>
     </div>
