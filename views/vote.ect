@@ -1,4 +1,4 @@
-<% extend 'layout.ect' %>
+<% extend 'layouts/main.ect' %>
 <form name="form" id="vote-poll" ng-controller="PollVoteCtrl" ng-submit="submitVote()" data-poll-id="<%= @id %>">
   <h1 class="title">{{poll.title}}</h1>
   <ol class="options">

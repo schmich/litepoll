@@ -173,7 +173,6 @@ input[type="radio"]:checked + label {
   padding: 15px 30px;
   display: inline-block;
   cursor: pointer;
-  width: 210px;
 }
 .action:hover, .action:focus {
   background: #17f;
@@ -215,6 +214,7 @@ input[type="radio"]:checked + label {
   text-align: center;
 }
 .share {
+  width: 210px;
   margin: 20px auto;
   display: block;
 }
@@ -287,6 +287,15 @@ input[type="radio"]:checked + label {
 }
 .translate h1 {
   font-size: 28px;
+}
+.not-found {
+  text-align: center;
+}
+.not-found h1 {
+  margin: 40px 0 80px 0;
+}
+.not-found .action {
+  margin-bottom: 20px;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),

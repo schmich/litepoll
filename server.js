@@ -6,6 +6,7 @@ var http = require('http');
 var path = require('path');
 var ect = require('ect');
 var streaming = require('./lib/streaming');
+var NotFoundError = require('./lib/not-found');
 
 var app = express();
 
@@ -34,19 +35,30 @@ app.configure('production', function() {
   app.use(express.errorHandler()); 
 });
 
+function handleNotFound(handler) {
+  return function(req, res) {
+    handler(req, res).catch(function(e) {
+      if (e instanceof NotFoundError) {
+        res.status(404);
+        res.render('404');
+      }
+    });
+  };
+}
+
 app.get('/translate', pages.translate);
 app.post('/polls', api.create);
 app.get('/polls/:id', api.show);
 app.get('/polls/:id/options', api.options);
 app.put('/polls/:id', api.vote);
 app.get('/', poll.create);
-app.get('/:id', poll.show);
-app.get('/:id/r', poll.results);
-app.get('/:id/s', poll.share);
+app.get('/:id', handleNotFound(poll.show));
+app.get('/:id/r', handleNotFound(poll.results));
+app.get('/:id/s', handleNotFound(poll.share));
 
 var server = http.createServer(app);
 streaming.attach(server);
 
-server.listen(app.get('port'), function(){
+server.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
