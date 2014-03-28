@@ -55,10 +55,13 @@ app.get('/', poll.create);
 app.get('/:id', handleNotFound(poll.show));
 app.get('/:id/r', handleNotFound(poll.results));
 app.get('/:id/s', handleNotFound(poll.share));
+app.use(function(req, res) {
+  res.status(404);
+  res.render('404');
+});
 
 var server = http.createServer(app);
 streaming.attach(server);
-
 server.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
