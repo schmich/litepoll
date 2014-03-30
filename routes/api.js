@@ -1,30 +1,15 @@
 var Poll = require('../lib/poll');
 var redis = require('../lib/redis');
 var streaming = require('../lib/streaming');
-var underscore = require('underscore');
 var encoding = require('../lib/encoding');
 var moment = require('moment');
+var Promise = require('bluebird');
+var _ = require('underscore');
 
-function pollNotFound(res, pollId) {
-  notFound(res, "Question '" + pollId + "' does not exist.");
-}
-
-function notFound(res, message) {
-  error(res, message, 404);
-}
+Promise.promisifyAll(redis);
 
 function error(res, message, code) {
   res.send(code || 400, { error: message });
-}
-
-function mongoGetPoll(id, callback) {
-  Poll.findOne({ _id: id }, function(err, poll) {
-    if (err) {
-      callback(null);
-    } else {
-      callback(poll);
-    }
-  });
 }
 
 function redisCacheOptions(poll) {
@@ -161,21 +146,18 @@ exports.options = function(req, res) {
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
-  
-  redis.get('q:' + id, function(err, cache) {
+
+  return redis.getAsync('q:' + id).then(function(cache) {
     if (cache) {
-      var poll = JSON.parse(cache);
       maxCache(res);
-      res.send(poll);
+      res.set('Content-Type', 'application/json');
+      res.send(cache);
+      return Promise.resolve();
     } else {
-      mongoGetPoll(id, function(poll) {
-        if (poll) {
-          maxCache(res);
-          res.send({ title: poll.title, options: poll.opts });
-          redisCacheOptions(poll);
-        } else {
-          return pollNotFound(res, encodedId);
-        }
+      return Poll.find(id).then(function(poll) {
+        maxCache(res);
+        res.send({ title: poll.title, options: poll.opts });
+        redisCacheOptions(poll);
       });
     }
   });
@@ -187,16 +169,7 @@ exports.show = function(req, res) {
     return error(res, "'id' is required.");
   }
 
-  var id = encoding.toNumber(encodedId);
-  if (isNaN(id)) {
-    return error(res, "'id' is invalid.");
-  }
-
-  mongoGetPoll(id, function(poll) {
-    if (poll) {
-      res.send({ title: poll.title, options: underscore.zip(poll.opts, poll.votes) });
-    } else {
-      return pollNotFound(res, encodedId);
-    }
+  return Poll.findEncoded(encodedId).then(function(poll) {
+    res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
   });
 };
