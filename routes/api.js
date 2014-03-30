@@ -86,12 +86,7 @@ exports.create = function(req, res) {
 
 // PUT /:id
 exports.vote = function(req, res) {
-  var encodedId = req.params.id;
-  if (!encodedId) {
-    return error(res, "'id' is required.");
-  }
-
-  var id = encoding.toNumber(encodedId);
+  var id = encoding.toNumber(req.params.id);
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
@@ -137,12 +132,7 @@ exports.vote = function(req, res) {
 };
 
 exports.options = function(req, res) {
-  var encodedId = req.params.id;
-  if (!encodedId) {
-    return error(res, "'id' is required.");
-  }
-
-  var id = encoding.toNumber(encodedId);
+  var id = encoding.toNumber(req.params.id);
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
@@ -164,12 +154,7 @@ exports.options = function(req, res) {
 };
 
 exports.show = function(req, res) {
-  var encodedId = req.params.id;
-  if (!encodedId) {
-    return error(res, "'id' is required.");
-  }
-
-  return Poll.findEncoded(encodedId).then(function(poll) {
+  return Poll.findEncoded(req.params.id).then(function(poll) {
     res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
   });
 };
