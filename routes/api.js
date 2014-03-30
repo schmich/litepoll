@@ -86,7 +86,9 @@ exports.create = function(req, res) {
 
 // PUT /:id
 exports.vote = function(req, res) {
-  var id = encoding.toNumber(req.params.id);
+  var encodedId = req.params.id;
+
+  var id = encoding.toNumber(encodedId);
   if (isNaN(id)) {
     return error(res, "'id' is invalid.");
   }
