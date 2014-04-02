@@ -1,6 +1,6 @@
 var settings = require('./lib/settings')({
   mongo: 'mongodb://localhost/litepoll',
-  redis: 'redis://localhost:6379/0'
+  redis: 'redis://localhost/0'
 });
 var express = require('express');
 var api = require('./routes/api');
@@ -18,7 +18,9 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ect');
 app.use(express.favicon(__dirname + '/public/img/favicon.ico'));
-app.use(express.logger('dev'));
+if (app.settings.env != 'test') {
+  app.use(express.logger('dev'));
+}
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
@@ -71,5 +73,7 @@ app.use(function(req, res) {
 var server = http.createServer(app);
 streaming.attach(server);
 server.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + app.get('port'));
+  if (app.settings.env != 'test') {
+    console.log('Express server listening on port ' + app.get('port'));
+  }
 });
