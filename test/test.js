@@ -14,15 +14,19 @@ var client = request.newClient('http://localhost:' + port);
 
 server.listen(port, function() { });
 
-describe('Poll', function() {
-  before(function() {
-    Poll.remove({}, function(err) {
-      if (err) {
-        throw err;
-      }
+before(function(done) {
+  Poll.remove({}, function(err) {
+    if (err) {
+      throw err;
+    }
+
+    settings.redis.flushdb(function() {
+      done();
     });
   });
+});
 
+describe('Poll', function() {
   describe('create', function() {
     it('creates a poll', function(done) {
       Poll.create({

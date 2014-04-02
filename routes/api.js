@@ -112,11 +112,9 @@ exports.vote = function(req, res) {
     return error(res, "'vote' must be in range.");
   }
 
-  var ip = req.ip;
   var ipKey = 'q:' + id + ':ip';
-  // TODO: Race condition, multiple votes are actually allowed.
-  return redis.sismemberAsync(ipKey, ip).then(function(member) {
-    if (member) {
+  return redis.saddAsync(ipKey, req.ip).then(function(count) {
+    if (count == 0) {
       return error(res, "You have already voted in this poll.");
     } else {
       return Poll.vote(id, voteIndex).then(function(poll) {
@@ -124,9 +122,6 @@ exports.vote = function(req, res) {
 
         // Notify clients of vote.
         streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
-
-        // Ignore any errors when adding IP to the voted-IP list.
-        redis.sadd(ipKey, ip);
       });
     }
   });
