@@ -40,69 +40,115 @@ describe('Poll', function() {
 });
 
 describe('Server', function() {
-  describe('POST /polls', function() {
-    var poll = null;
-    beforeEach(function() {
-      poll = {
-        title: 'Best color?',
-        options: ['Red', 'Green', 'Blue'],
-        strict: true
-      };
-    });
+  var poll = null;
+  beforeEach(function() {
+    poll = {
+      title: 'Best color?',
+      options: ['Red', 'Green', 'Blue'],
+      strict: true
+    };
+  });
 
+  describe('POST /polls', function() {
     it('requires a title value', function(done) {
       delete poll.title;
-      client.post('polls',  poll, function(err, response) {
-        assert.equal(400, response.statusCode);
+      client.post('polls',  poll, function(err, res) {
+        assert.equal(res.statusCode, 400);
         done();
       });
     });
 
     it('requires a non-empty title', function(done) {
       poll.title = ' ';
-      client.post('polls',  poll, function(err, response) {
-        assert.equal(400, response.statusCode);
+      client.post('polls',  poll, function(err, res) {
+        assert.equal(res.statusCode, 400);
         done();
       });
     });
 
     it('requires an option value', function(done) {
       delete poll.options;
-      client.post('polls',  poll, function(err, response) {
-        assert.equal(400, response.statusCode);
+      client.post('polls',  poll, function(err, res) {
+        assert.equal(res.statusCode, 400);
         done();
       });
     });
 
     it('requires at least two options', function(done) {
       poll.options = ['Red'];
-      client.post('polls',  poll, function(err, response) {
-        assert.equal(400, response.statusCode);
+      client.post('polls',  poll, function(err, res) {
+        assert.equal(res.statusCode, 400);
         done();
       });
     });
 
     it('requires non-empty options', function(done) {
       poll.options = ['Red', 'Green', ''];
-      client.post('polls',  poll, function(err, response) {
-        assert.equal(400, response.statusCode);
+      client.post('polls',  poll, function(err, res) {
+        assert.equal(res.statusCode, 400);
         done();
       });
     });
 
     it('requires a strict value', function(done) {
       delete poll.strict;
-      client.post('polls',  poll, function(err, response) {
-        assert.equal(400, response.statusCode);
+      client.post('polls',  poll, function(err, res) {
+        assert.equal(res.statusCode, 400);
         done();
       });
     });
 
     it('successfully creates a poll', function(done) {
-      client.post('polls', poll, function(err, response) {
-        assert.equal(201, response.statusCode);
-        assert.isDefined(response.headers.location);
+      client.post('polls', poll, function(err, res) {
+        assert.equal(res.statusCode, 201);
+        assert.isDefined(res.headers.location);
         done();
+      });
+    });
+  });
+
+  describe('GET /polls/:id', function() {
+    it('returns 404 when poll does not exist', function(done) {
+      client.get('polls/123456789', function(err, res) {
+        assert.equal(res.statusCode, 404);
+        done();
+      });
+    });
+
+    it('returns the poll', function(done) {
+      client.post('polls', poll, function(err, res) {
+        assert.equal(res.statusCode, 201);
+        var location = res.headers.location;
+        client.get(location, function(err, res, created) {
+          assert.equal(res.statusCode, 200);
+          assert(res.headers['content-type'].indexOf('application/json') >= 0);
+          assert.equal(created.title, poll.title);
+          assert.isUndefined(created.strict);
+          done();
+        });
+      });
+    });
+  });
+
+  describe('GET /polls/:id/options', function() {
+    it('returns 404 when poll does not exist', function(done) {
+      client.get('polls/123456789/options', function(err, res) {
+        assert.equal(res.statusCode, 404);
+        done();
+      });
+    });
+
+    it('returns the poll options', function(done) {
+      client.post('polls', poll, function(err, res) {
+        assert.equal(res.statusCode, 201);
+        var location = res.headers.location;
+        client.get(location + '/options', function(err, res, created) {
+          assert.equal(res.statusCode, 200);
+          assert(res.headers['content-type'].indexOf('application/json') >= 0);
+          assert.equal(created.title, poll.title);
+          assert.deepEqual(created.options, poll.options);
+          done();
+        });
       });
     });
   });
