@@ -48,13 +48,14 @@ exports.create = function(req, res) {
     return error(res, "At least two non-empty 'options' are required.");
   }
 
-  options.forEach(function(option) {
+  for (var i = 0; i < options.length; ++i) {
+    var option = options[i];
     if (!option || !option.trim()) {
       return error(res, "'options' must not be empty.");
     } else if (option.length > 140) {
       return error(res, "Option length must not exceed 140 characters.")
     }
-  });
+  }
 
   if (options.length < 2) {
     return error(res, "At least two 'options' are required.");
