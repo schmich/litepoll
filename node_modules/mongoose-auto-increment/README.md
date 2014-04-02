@@ -1,7 +1,7 @@
 # mongoose-auto-increment
 
-[![Build Status](https://travis-ci.org/chevex/mongoose-auto-increment.png?branch=master)](https://travis-ci.org/chevex/mongoose-auto-increment)
-[![Dependencies Status](https://gemnasium.com/chevex/mongoose-auto-increment.png)](https://gemnasium.com/chevex/mongoose-auto-increment)
+[![Build Status](https://travis-ci.org/codetunnel/mongoose-auto-increment.png?branch=master)](https://travis-ci.org/codetunnel/mongoose-auto-increment)
+[![Dependencies Status](https://gemnasium.com/codetunnel/mongoose-auto-increment.png)](https://gemnasium.com/codetunnel/mongoose-auto-increment)
 [![NPM version](https://badge.fury.io/js/mongoose-auto-increment.png)](http://badge.fury.io/js/mongoose-auto-increment)
 
 > Mongoose plugin that auto-increments any ID field on your schema every time a document is saved.
