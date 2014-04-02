@@ -30,8 +30,8 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   }
 
   $scope.keydown = function(ev, index) {
-    /* Ignore: backspace, tab, shift, ctrl, alt, caps, meta, meta */
-    if ([8, 9, 16, 17, 18, 20, 91, 92].indexOf(ev.keyCode) >= 0) {
+    /* Ignore: backspace, tab, shift, ctrl, alt, caps, meta, arrows */
+    if ([8, 9, 16, 17, 18, 20, 91, 92, 93, 37, 38, 39, 40].indexOf(ev.keyCode) >= 0) {
       return;
     }
 
