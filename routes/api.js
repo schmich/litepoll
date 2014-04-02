@@ -89,7 +89,6 @@ exports.create = function(req, res) {
   });
 };
 
-// PUT /:id
 exports.vote = function(req, res) {
   var encodedId = req.params.id;
 
@@ -112,17 +111,28 @@ exports.vote = function(req, res) {
     return error(res, "'vote' must be in range.");
   }
 
-  var ipKey = 'q:' + id + ':ip';
-  return redis.saddAsync(ipKey, req.ip).then(function(count) {
-    if (count == 0) {
-      return error(res, "You have already voted in this poll.");
-    } else {
-      return Poll.vote(id, voteIndex).then(function(poll) {
-        res.send({});
+  var commitVote = function() {
+    return Poll.vote(id, voteIndex).then(function(poll) {
+      res.send({});
 
-        // Notify clients of vote.
-        streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
+      // Notify clients of vote.
+      streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
+    });
+  }
+
+  // TODO: Look in Redis first for strictness
+  return Poll.find(id).then(function(poll) {
+    if (poll.strict) {
+      var ipKey = 'q:' + id + ':ip';
+      return redis.saddAsync(ipKey, req.ip).then(function(count) {
+        if (count == 0) {
+          return error(res, "You have already voted in this poll.");
+        } else {
+          return commitVote();
+        }
       });
+    } else {
+      commitVote();
     }
   });
 };

@@ -27,7 +27,7 @@ before(function(done) {
 });
 
 describe('Poll', function() {
-  describe('create', function() {
+  describe('#create', function() {
     it('creates a poll', function(done) {
       Poll.create({
         title: 'Best color?',
