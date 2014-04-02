@@ -55,7 +55,7 @@ app.get('/translate', pages.translate);
 app.post('/polls', api.create);
 app.get('/polls/:id', handleNotFound(api.show));
 app.get('/polls/:id/options', handleNotFound(api.options));
-app.put('/polls/:id', handleNotFound(api.vote));
+app.patch('/polls/:id', handleNotFound(api.vote));
 app.get('/', poll.create);
 app.get('/:id', handleNotFound(poll.show));
 app.get('/:id/r', handleNotFound(poll.results));

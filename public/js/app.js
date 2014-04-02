@@ -1,7 +1,10 @@
 var app = angular.module('litepoll', [])
 
-app.config(['$compileProvider', function($compileProvider) {
+app.config(['$compileProvider', '$httpProvider', function($compileProvider, $httpProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(http|https|sms|mailto).*/);
+  $httpProvider.defaults.headers.patch = {
+    'Content-Type': 'application/json;charset=utf-8'
+  };
 }]);
 
 app.controller('PollCreateCtrl', function($scope, $http) {
@@ -69,7 +72,7 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
   $scope.currentVote = localStorageService.get(voteKey);
 
   $scope.submitVote = function() {
-    $http.put('/polls/' + pollId, { vote: +$scope.vote })
+    $http({ method: 'PATCH', url: '/polls/' + pollId, data: { vote: +$scope.vote } })
       .success(function(data) {
         localStorageService.set(voteKey, +$scope.vote);
         // TODO: Pull from response JSON.

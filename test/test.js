@@ -11,20 +11,24 @@ var request = require('request-json');
 var server = require('../server');
 var port = process.env.PORT || 3001;
 var client = request.newClient('http://localhost:' + port);
+var MongoClient = require('mongodb').MongoClient;
 
 server.listen(port, function() { });
 
+after(function(done) {
+  MongoClient.connect(settings.options.mongo, function(err, db) {
+    db.dropDatabase(function() {
+      db.close();
+      settings.redis.flushdb(function() {
+        done();
+      });
+    });
+  });
+});
+
 beforeEach(function(done) {
   Poll.remove({}, function(err) {
-    if (err) {
-      throw err;
-    }
-
     settings.redis.flushdb(function(err) {
-      if (err) {
-        throw err;
-      }
-
       done();
     });
   });
@@ -162,11 +166,11 @@ describe('Server', function() {
     });
   });
 
-  describe('PUT /polls/:id', function() {
+  describe('PATCH /polls/:id', function() {
     var vote = { vote: 0 };
 
     it('returns 404 when poll does not exist', function(done) {
-      client.put('polls/123456789', vote, function(err, res) {
+      client.patch('polls/123456789', vote, function(err, res) {
         assert.equal(res.statusCode, 404);
         done();
       });
@@ -176,7 +180,7 @@ describe('Server', function() {
       client.post('polls', poll, function(err, res) {
         assert.equal(res.statusCode, 201);
         var location = res.headers.location;
-        client.put(location, vote, function(err, res) {
+        client.patch(location, vote, function(err, res) {
           assert.equal(res.statusCode, 200);
           client.get(location, function(err, res, votedPoll) {
             assert.equal(votedPoll.options[0][1], 1);
@@ -192,9 +196,9 @@ describe('Server', function() {
       client.post('polls', poll, function(err, res) {
         assert.equal(res.statusCode, 201);
         var location = res.headers.location;
-        client.put(location, vote, function(err, res) {
+        client.patch(location, vote, function(err, res) {
           assert.equal(res.statusCode, 200);
-          client.put(location, vote, function(err, res) {
+          client.patch(location, vote, function(err, res) {
             assert.equal(res.statusCode, 400);
             done();
           });
@@ -207,9 +211,9 @@ describe('Server', function() {
       client.post('polls', poll, function(err, res) {
         assert.equal(res.statusCode, 201);
         var location = res.headers.location;
-        client.put(location, vote, function(err, res) {
+        client.patch(location, vote, function(err, res) {
           assert.equal(res.statusCode, 200);
-          client.put(location, vote, function(err, res) {
+          client.patch(location, vote, function(err, res) {
             assert.equal(res.statusCode, 200);
             client.get(location, function(err, res, votedPoll) {
               assert.equal(votedPoll.options[0][1], 2);
