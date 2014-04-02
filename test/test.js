@@ -8,9 +8,11 @@ var settings = require('../lib/settings')({
 var Poll = require('../lib/poll');
 var assert = require('assert');
 var request = require('request-json');
-var client = request.newClient('http://localhost:3000/');
+var server = require('../server');
+var port = process.env.PORT || 3001;
+var client = request.newClient('http://localhost:' + port);
 
-require('../server');
+server.listen(port, function() { });
 
 describe('Poll', function() {
   before(function() {

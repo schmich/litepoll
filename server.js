@@ -14,7 +14,6 @@ var NotFoundError = require('./lib/not-found');
 
 var app = express();
 
-app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ect');
 app.use(express.favicon(__dirname + '/public/img/favicon.ico'));
@@ -72,8 +71,5 @@ app.use(function(req, res) {
 
 var server = http.createServer(app);
 streaming.attach(server);
-server.listen(app.get('port'), function() {
-  if (app.settings.env != 'test') {
-    console.log('Express server listening on port ' + app.get('port'));
-  }
-});
+
+module.exports = server;
