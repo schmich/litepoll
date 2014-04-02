@@ -35,15 +35,15 @@ app.configure('production', function() {
   app.use(express.errorHandler()); 
 });
 
-function handleNotFound(handler, json) {
+function handleNotFound(handler) {
   return function(req, res) {
     handler(req, res).catch(function(e) {
       if (e instanceof NotFoundError) {
         res.status(404);
-        if (json) {
-          res.send({ error: 'Not found.' });
-        } else {
+        if (req.accepts('html', 'json') == 'html') {
           res.render('404');
+        } else {
+          res.send({ error: 'Not found.' });
         }
       }
     });
@@ -52,8 +52,8 @@ function handleNotFound(handler, json) {
 
 app.get('/translate', pages.translate);
 app.post('/polls', api.create);
-app.get('/polls/:id', handleNotFound(api.show, true));
-app.get('/polls/:id/options', handleNotFound(api.options, true));
+app.get('/polls/:id', handleNotFound(api.show));
+app.get('/polls/:id/options', handleNotFound(api.options));
 app.put('/polls/:id', api.vote);
 app.get('/', poll.create);
 app.get('/:id', handleNotFound(poll.show));
