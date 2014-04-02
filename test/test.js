@@ -152,4 +152,15 @@ describe('Server', function() {
       });
     });
   });
+
+  describe('PUT /polls/:id', function() {
+    var vote = { vote: 0 };
+
+    it('returns 404 when poll does not exist', function(done) {
+      client.put('polls/123456789', vote, function(err, res) {
+        assert.equal(res.statusCode, 404);
+        done();
+      });
+    });
+  });
 });

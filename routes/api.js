@@ -115,7 +115,7 @@ exports.vote = function(req, res) {
   var ip = req.ip;
   var ipKey = 'q:' + id + ':ip';
   // TODO: Race condition, multiple votes are actually allowed.
-  redis.sismember(ipKey, ip, function(err, member) {
+  return redis.sismemberAsync(ipKey, ip).then(function(member) {
     if (member) {
       return error(res, "You have already voted in this poll.");
     } else {
