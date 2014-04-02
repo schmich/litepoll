@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-var settings = require('../lib/settings')({
+var settings = require('../lib/settings').configure({
   mongo: 'mongodb://localhost/litepoll_test',
   redis: 'redis://localhost/1'
 });

@@ -1,4 +1,4 @@
-var redis = require('../lib/settings')().redis;
+var redis = require('../lib/settings').settings.redis;
 var Poll = require('../lib/poll');
 var streaming = require('../lib/streaming');
 var encoding = require('../lib/encoding');

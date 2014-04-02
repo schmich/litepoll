@@ -1,4 +1,4 @@
-var settings = require('./lib/settings')({
+require('./lib/settings').configure({
   mongo: 'mongodb://localhost/litepoll',
   redis: 'redis://localhost/0'
 });
