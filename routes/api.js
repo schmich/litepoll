@@ -73,15 +73,13 @@ exports.create = function(req, res) {
     return error(res, "A value for 'strict' is required.");
   }
 
-  var poll = new Poll({
+  Poll.create({
     title: title,
     opts: options,
     votes: votes,
     strict: strict ? true : false,
     creator: req.ip
-  });
-
-  poll.save(function() {
+  }).then(function(poll) {
     // TODO: Check for errors.
     var encodedId = encoding.fromNumber(poll._id);
     res.set('Location', '/polls/' + encodedId);
