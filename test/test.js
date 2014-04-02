@@ -20,7 +20,11 @@ beforeEach(function(done) {
       throw err;
     }
 
-    settings.redis.flushdb(function() {
+    settings.redis.flushdb(function(err) {
+      if (err) {
+        throw err;
+      }
+
       done();
     });
   });
