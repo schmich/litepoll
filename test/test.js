@@ -119,11 +119,12 @@ describe('Server', function() {
       client.post('polls', poll, function(err, res) {
         assert.equal(res.statusCode, 201);
         var location = res.headers.location;
-        client.get(location, function(err, res, created) {
+        client.get(location, function(err, res, newPoll) {
           assert.equal(res.statusCode, 200);
           assert(res.headers['content-type'].indexOf('application/json') >= 0);
-          assert.equal(created.title, poll.title);
-          assert.isUndefined(created.strict);
+          assert.equal(newPoll.title, poll.title);
+          assert.isUndefined(newPoll.strict);
+          assert.equal(newPoll.options.length, poll.options.length);
           done();
         });
       });
@@ -160,6 +161,56 @@ describe('Server', function() {
       client.put('polls/123456789', vote, function(err, res) {
         assert.equal(res.statusCode, 404);
         done();
+      });
+    });
+
+    it('successfully increments the vote count', function(done) {
+      client.post('polls', poll, function(err, res) {
+        assert.equal(res.statusCode, 201);
+        var location = res.headers.location;
+        client.put(location, vote, function(err, res) {
+          assert.equal(res.statusCode, 200);
+          client.get(location, function(err, res, votedPoll) {
+            assert.equal(votedPoll.options[0][1], 1);
+            assert.equal(votedPoll.options[1][1], 0);
+            assert.equal(votedPoll.options[2][1], 0);
+            done();
+          });
+        });
+      });
+    });
+
+    it('returns an error when voting multiple times on a strict poll', function(done) {
+      client.post('polls', poll, function(err, res) {
+        assert.equal(res.statusCode, 201);
+        var location = res.headers.location;
+        client.put(location, vote, function(err, res) {
+          assert.equal(res.statusCode, 200);
+          client.put(location, vote, function(err, res) {
+            assert.equal(res.statusCode, 400);
+            done();
+          });
+        });
+      });
+    });
+
+    it('allows voting multiple times on a non-strict poll', function(done) {
+      poll.strict = false;
+      client.post('polls', poll, function(err, res) {
+        assert.equal(res.statusCode, 201);
+        var location = res.headers.location;
+        client.put(location, vote, function(err, res) {
+          assert.equal(res.statusCode, 200);
+          client.put(location, vote, function(err, res) {
+            assert.equal(res.statusCode, 200);
+            client.get(location, function(err, res, votedPoll) {
+              assert.equal(votedPoll.options[0][1], 2);
+              assert.equal(votedPoll.options[1][1], 0);
+              assert.equal(votedPoll.options[2][1], 0);
+              done();
+            });
+          });
+        });
       });
     });
   });
