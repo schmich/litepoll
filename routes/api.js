@@ -12,8 +12,8 @@ function error(res, message, code) {
   res.send(code || 400, { error: message });
 }
 
-function redisCacheOptions(poll) {
-  var cache = { title: poll.title, options: poll.opts };
+function redisCachePoll(poll) {
+  var cache = { title: poll.title, options: poll.opts, strict: poll.strict };
   var key = 'q:' + poll._id;
   redis.set(key, JSON.stringify(cache), function(err) {
     if (!err) {
@@ -85,7 +85,7 @@ exports.create = function(req, res) {
     res.set('Location', '/polls/' + encodedId);
     res.send(201, { path: { web: '/' + encodedId + '/s', api: '/polls/' + encodedId } });
 
-    redisCacheOptions(poll);
+    redisCachePoll(poll);
   });
 };
 
@@ -120,9 +120,17 @@ exports.vote = function(req, res) {
     });
   }
 
-  // TODO: Look in Redis first for strictness
-  return Poll.find(id).then(function(poll) {
-    if (poll.strict) {
+  return redis.getAsync('q:' + id).then(function(cache) {
+    if (cache) {
+      var cachedPoll = JSON.parse(cache);
+      return cachedPoll.strict;
+    } else {
+      return Poll.find(id).then(function(poll) {
+        return poll.strict;
+      });
+    }
+  }).then(function(strict) {
+    if (strict) {
       var ipKey = 'q:' + id + ':ip';
       return redis.saddAsync(ipKey, req.ip).then(function(count) {
         if (count == 0) {
@@ -132,7 +140,7 @@ exports.vote = function(req, res) {
         }
       });
     } else {
-      commitVote();
+      return commitVote();
     }
   });
 };
@@ -148,12 +156,11 @@ exports.options = function(req, res) {
       maxCache(res);
       res.set('Content-Type', 'application/json');
       res.send(cache);
-      return Promise.resolve();
     } else {
       return Poll.find(id).then(function(poll) {
         maxCache(res);
-        res.send({ title: poll.title, options: poll.opts });
-        redisCacheOptions(poll);
+        res.send({ title: poll.title, options: poll.opts, strict: poll.strict });
+        redisCachePoll(poll);
       });
     }
   });

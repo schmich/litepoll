@@ -14,7 +14,7 @@ var client = request.newClient('http://localhost:' + port);
 
 server.listen(port, function() { });
 
-before(function(done) {
+beforeEach(function(done) {
   Poll.remove({}, function(err) {
     if (err) {
       throw err;
