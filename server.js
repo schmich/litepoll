@@ -1,7 +1,3 @@
-var settings = require('./lib/settings')({
-  mongo: 'mongodb://localhost/litepoll',
-  redis: 'redis://localhost/0'
-});
 var express = require('express');
 var api = require('./routes/api');
 var poll = require('./routes/poll');

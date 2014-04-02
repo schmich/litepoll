@@ -6,7 +6,7 @@ var settings = require('../lib/settings')({
 });
 
 var Poll = require('../lib/poll');
-var assert = require('assert');
+var assert = require('chai').assert;
 var request = require('request-json');
 var server = require('../server');
 var port = process.env.PORT || 3001;
@@ -32,7 +32,7 @@ describe('Poll', function() {
         strict: true,
         creator: '127.0.0.1'
       }).then(function(poll) {
-        assert.notEqual(poll, null);
+        assert.isNotNull(poll);
         done();
       });
     });
@@ -40,16 +40,16 @@ describe('Poll', function() {
 });
 
 describe('Server', function() {
-  var poll = null;
-  beforeEach(function() {
-    poll = {
-      title: 'Best color?',
-      options: ['Red', 'Green', 'Blue'],
-      strict: true
-    };
-  });
-
   describe('POST /polls', function() {
+    var poll = null;
+    beforeEach(function() {
+      poll = {
+        title: 'Best color?',
+        options: ['Red', 'Green', 'Blue'],
+        strict: true
+      };
+    });
+
     it('requires a title value', function(done) {
       delete poll.title;
       client.post('polls',  poll, function(err, response) {
@@ -59,7 +59,7 @@ describe('Server', function() {
     });
 
     it('requires a non-empty title', function(done) {
-      poll.title = '';
+      poll.title = ' ';
       client.post('polls',  poll, function(err, response) {
         assert.equal(400, response.statusCode);
         done();
@@ -101,6 +101,7 @@ describe('Server', function() {
     it('successfully creates a poll', function(done) {
       client.post('polls', poll, function(err, response) {
         assert.equal(201, response.statusCode);
+        assert.isDefined(response.headers.location);
         done();
       });
     });
