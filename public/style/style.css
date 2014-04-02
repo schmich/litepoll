@@ -24,8 +24,10 @@ html, body, form, ol, ul, li, h1, h2, h3, h4 {
 * {
   box-sizing: border-box;
 }
-html, body, input {
+html, body {
   height: 100%;
+}
+html, body, input {
   font-family: 'Helvetica Neue', Calibri, Arial, sans-serif;
   font-size: 28px;
   font-weight: 200;
@@ -143,9 +145,16 @@ input[type="radio"]:checked + label {
   margin-bottom: 10px;
 }
 #create-poll .option li {
-  margin: 20px 0;
+  margin: 18px 0;
 }
-#create-poll .actions, #vote-poll .actions {
+#create-poll .actions {
+  margin-top: 20px;
+}
+#create-poll .actions a {
+  display: block;
+  margin-bottom: 15px;
+}
+#vote-poll .actions {
   margin-top: 30px;
 }
 .results .title {
@@ -296,6 +305,25 @@ input[type="radio"]:checked + label {
 }
 .not-found .action {
   margin-bottom: 20px;
+}
+.advanced {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.advanced label {
+  display: block;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.advanced input[type="checkbox"] {
+  vertical-align: bottom;
+  position: relative;
+  top: -10px;
+  padding: 0;
+  margin: 0;
+  margin-right: 15px;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),

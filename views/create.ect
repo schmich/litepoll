@@ -26,8 +26,12 @@
       />
     </li>
   </ol>
+  <div ng-if="advanced" class="advanced">
+    <label><input type="checkbox" ng-model="poll.strict">Only allow one vote per IP</label>
+  </div>
   <center>
     <div class="actions">
+      <a href="" ng-if="!advanced" ng-click="showAdvanced()">Advanced</a>
       <input type="submit" class="action" value="Create Poll" />
     </div>
   </center>

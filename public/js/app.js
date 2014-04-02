@@ -9,7 +9,13 @@ app.controller('PollCreateCtrl', function($scope, $http) {
 
   $scope.poll = {
     title: '',
-    options: ['', '', '', '']
+    options: ['', '', '', ''],
+    strict: true
+  };
+
+  $scope.advanced = false;
+  $scope.showAdvanced = function() {
+    $scope.advanced = true;
   };
 
   function maybeAddOption(index) {
@@ -44,10 +50,10 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     }
 
     $http.post('/polls', poll)
-      .success(function(data) {
-        window.location.pathname = data.path.web;
+      .success(function(res) {
+        window.location.pathname = res.path.web;
       })
-      .error(function(data) {
+      .error(function() {
         alert('You must specify a title and at least two options.');
       });
   };

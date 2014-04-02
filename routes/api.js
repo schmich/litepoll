@@ -67,10 +67,16 @@ exports.create = function(req, res) {
     votes.push(0);
   }
 
+  var strict = req.body.strict;
+  if (strict === undefined) {
+    return error(res, "A value for 'strict' is required.");
+  }
+
   var poll = new Poll({
     title: title,
     opts: options,
     votes: votes,
+    strict: strict ? true : false,
     creator: req.ip
   });
 
