@@ -1,5 +1,5 @@
+var redis = require('../lib/settings')().redis;
 var Poll = require('../lib/poll');
-var redis = require('../lib/redis');
 var streaming = require('../lib/streaming');
 var encoding = require('../lib/encoding');
 var moment = require('moment');
