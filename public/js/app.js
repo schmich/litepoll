@@ -163,10 +163,10 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
 
   $scope.votes = function(item) {
    return -item[1];
-  }
+  };
     
   var client = new Faye.Client('/stream');
-  var subscription = client.subscribe('/polls/' + pollId, function(votes) {
+  client.subscribe('/polls/' + pollId, function(message) {
     if ($scope.poll == null)
       return;
 
@@ -246,23 +246,25 @@ app.directive('ngEnterTab', function() {
     restrict: 'A',
     link: function(scope, elem, attr) {
       elem.on('keydown', function(e) {
-        if (e.keyCode == 13 /* Enter */) {
-          e.preventDefault();
-          e.stopPropagation();
+        if (e.keyCode != 13 /* Enter */) {
+          return;
+        }
 
-          var reverse = e.shiftKey;
+        e.preventDefault();
+        e.stopPropagation();
 
-          var inputs = document.querySelectorAll('input');
-          for (var i = 0; i < inputs.length; ++i) {
-            var input = inputs[i];
-            if (input == e.srcElement) {
-              if (reverse && (i > 0)) {
-                inputs[i - 1].focus();
-              } else if (!reverse && (i < (inputs.length - 1))) {
-                inputs[i + 1].focus();
-              }
-              break;
+        var reverse = e.shiftKey;
+
+        var inputs = document.querySelectorAll('input');
+        for (var i = 0; i < inputs.length; ++i) {
+          var input = inputs[i];
+          if (input == e.srcElement) {
+            if (reverse && (i > 0)) {
+              inputs[i - 1].focus();
+            } else if (!reverse && (i < (inputs.length - 1))) {
+              inputs[i + 1].focus();
             }
+            break;
           }
         }
       });

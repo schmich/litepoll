@@ -115,25 +115,19 @@ exports.vote = function(req, res) {
 
   var ip = req.ip;
   var ipKey = 'q:' + id + ':ip';
+  // TODO: Race condition, multiple votes are actually allowed.
   redis.sismember(ipKey, ip, function(err, member) {
     if (member) {
       return error(res, "You have already voted in this poll.");
     } else {
-      var update = { $inc: { } };
-      update['$inc']['votes.' + voteIndex] = 1;
+      return Poll.vote(id, voteIndex).then(function(poll) {
+        res.send({});
 
-      Poll.findOneAndUpdate({ _id:  id }, update, {}, function(err, poll) {
-        if (!poll) {
-          return error(res, "'id' not found or 'vote' not in range.");
-        } else {
-          res.send({});
+        // Notify clients of vote.
+        streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
 
-          // Notify clients of vote.
-          streaming.getClient().publish('/polls/' + encodedId, poll.votes);
-
-          // Ignore any errors when adding IP to the voted-IP list.
-          redis.sadd(ipKey, ip);
-        }
+        // Ignore any errors when adding IP to the voted-IP list.
+        redis.sadd(ipKey, ip);
       });
     }
   });
