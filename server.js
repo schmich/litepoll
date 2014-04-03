@@ -5,8 +5,10 @@ var pages = require('./routes/pages');
 var http = require('http');
 var path = require('path');
 var ect = require('ect');
+var co = require('co');
 var streaming = require('./lib/streaming');
 var NotFoundError = require('./lib/not-found');
+var BadRequestError = require('./lib/bad-request');
 
 var app = express();
 
@@ -36,30 +38,33 @@ app.configure('production', function() {
   app.use(express.errorHandler()); 
 });
 
-function handleNotFound(handler) {
+function handleErrors(handler) {
   return function(req, res) {
-    handler(req, res).catch(function(e) {
-      if (e instanceof NotFoundError) {
+    co(handler)(req, res, function(err, _) {
+      if (err instanceof NotFoundError) {
         res.status(404);
         if (req.accepts('html', 'json') == 'html') {
           res.render('404');
         } else {
           res.send({ error: 'Not found.' });
         }
+      } else if (err instanceof BadRequestError) {
+        res.status(400);
+        res.send({ error: err.message });
       }
     });
-  };
+  }
 }
 
 app.get('/translate', pages.translate);
-app.post('/polls', api.create);
-app.get('/polls/:id', handleNotFound(api.show));
-app.get('/polls/:id/options', handleNotFound(api.options));
-app.patch('/polls/:id', handleNotFound(api.vote));
+app.post('/polls', handleErrors(api.create));
+app.get('/polls/:id', handleErrors(api.show));
+app.get('/polls/:id/options', handleErrors(api.options));
+app.patch('/polls/:id', handleErrors(api.vote));
 app.get('/', poll.create);
-app.get('/:id', handleNotFound(poll.show));
-app.get('/:id/r', handleNotFound(poll.results));
-app.get('/:id/s', handleNotFound(poll.share));
+app.get('/:id', handleErrors(poll.show));
+app.get('/:id/r', handleErrors(poll.results));
+app.get('/:id/s', handleErrors(poll.share));
 app.use(function(req, res) {
   res.status(404);
   res.render('404');

@@ -4,12 +4,13 @@ var streaming = require('../lib/streaming');
 var encoding = require('../lib/encoding');
 var moment = require('moment');
 var Promise = require('bluebird');
+var NotFoundError = require('../lib/not-found');
+var BadRequestError = require('../lib/bad-request');
+var co = require('co');
 var _ = require('underscore');
 
-Promise.promisifyAll(redis);
-
-function error(res, message, code) {
-  res.send(code || 400, { error: message });
+function err(message) {
+  throw new BadRequestError(message);
 }
 
 function redisCachePoll(poll) {
@@ -32,35 +33,35 @@ function cache(res, seconds) {
   res.set('Expires', expires.format('ddd, D MMM YYYY HH:mm:ss [GMT]'));
 }
 
-exports.create = function(req, res) {
+exports.create = function *(req, res) {
   var title = req.body.title;
 
   if (!title || !title.trim()) {
-    return error(res, "A non-empty 'title' is required.");
+    err("A non-empty 'title' is required.");
   }
 
   if (title.length > 140) {
-    return error(res, "'title' length must not exceed 140 characters.")
+    err("'title' length must not exceed 140 characters.")
   }
 
   var options = req.body.options;
   if (!options || !options.length) {
-    return error(res, "At least two non-empty 'options' are required.");
+    err("At least two non-empty 'options' are required.");
   }
 
   for (var i = 0; i < options.length; ++i) {
     var option = options[i];
     if (!option || !option.trim()) {
-      return error(res, "'options' must not be empty.");
+      err("'options' must not be empty.");
     } else if (option.length > 140) {
-      return error(res, "Option length must not exceed 140 characters.")
+      err("Option length must not exceed 140 characters.")
     }
   }
 
   if (options.length < 2) {
-    return error(res, "At least two 'options' are required.");
+    err("At least two 'options' are required.");
   } else if (options.length > 32) {
-    return error(res, "Number of options must not exceed 32.")
+    err("Number of options must not exceed 32.")
   }
 
   var votes = [];
@@ -70,104 +71,89 @@ exports.create = function(req, res) {
 
   var strict = req.body.strict;
   if (strict === undefined) {
-    return error(res, "A value for 'strict' is required.");
+    err("A value for 'strict' is required.");
   }
 
-  Poll.create({
+  var poll = yield Poll.create({
     title: title,
     opts: options,
     votes: votes,
     strict: strict ? true : false,
     creator: req.ip
-  }).then(function(poll) {
-    // TODO: Check for errors.
-    var encodedId = encoding.fromNumber(poll._id);
-    res.set('Location', '/polls/' + encodedId);
-    res.send(201, { path: { web: '/' + encodedId + '/s', api: '/polls/' + encodedId } });
-
-    redisCachePoll(poll);
   });
+  
+  // TODO: Check for errors.
+  var encodedId = encoding.fromNumber(poll._id);
+  res.set('Location', '/polls/' + encodedId);
+  res.send(201, { path: { web: '/' + encodedId + '/s', api: '/polls/' + encodedId } });
+
+  redisCachePoll(poll);
 };
 
-exports.vote = function(req, res) {
+exports.vote = function *(req, res) {
   var encodedId = req.params.id;
 
   var id = encoding.toNumber(encodedId);
   if (isNaN(id)) {
-    return error(res, "'id' is invalid.");
+    err("'id' is invalid.");
   }
 
   var vote = req.body.vote;
   if (vote == null) {
-    return error(res, "'vote' is required.");
+    err("'vote' is required.");
   }
 
   var voteIndex = parseInt(vote);
   if (isNaN(voteIndex) || !isFinite(voteIndex)) {
-    return error(res, "Integer 'vote' is required.");
+    err("Integer 'vote' is required.");
   }
 
   if (voteIndex < 0) {
-    return error(res, "'vote' must be in range.");
+    err("'vote' must be in range.");
   }
 
-  var commitVote = function() {
-    return Poll.vote(id, voteIndex).then(function(poll) {
-      res.send({});
-
-      // Notify clients of vote.
-      streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
-    });
-  }
-
-  return redis.getAsync('q:' + id).then(function(cache) {
-    if (cache) {
-      var cachedPoll = JSON.parse(cache);
-      return cachedPoll.strict;
-    } else {
-      return Poll.find(id).then(function(poll) {
-        return poll.strict;
-      });
-    }
-  }).then(function(strict) {
-    if (strict) {
-      var ipKey = 'q:' + id + ':ip';
-      return redis.saddAsync(ipKey, req.ip).then(function(count) {
-        if (count == 0) {
-          return error(res, "You have already voted in this poll.");
-        } else {
-          return commitVote();
-        }
-      });
-    } else {
-      return commitVote();
-    }
+  var commitVote = co(function *() {
+    var poll = yield Poll.vote(id, voteIndex);
+    res.send({});
+    streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
   });
+
+  var cache = yield redis.get('q:' + id);
+  var poll = cache ? JSON.parse(cache) : yield Poll.find(id);
+
+  if (poll.strict) {
+    var ipKey = 'q:' + id + ':ip';
+    var count = yield redis.sadd(ipKey, req.ip);
+    if (count == 0) {
+      err("You have already voted in this poll.");
+    } else {
+      yield commitVote();
+    }
+  } else {
+    yield commitVote();
+  }
 };
 
-exports.options = function(req, res) {
+exports.options = function *(req, res) {
   var id = encoding.toNumber(req.params.id);
   if (isNaN(id)) {
-    return error(res, "'id' is invalid.");
+    err("'id' is invalid.");
   }
 
-  return redis.getAsync('q:' + id).then(function(cache) {
-    if (cache) {
-      maxCache(res);
-      res.set('Content-Type', 'application/json');
-      res.send(cache);
-    } else {
-      return Poll.find(id).then(function(poll) {
-        maxCache(res);
-        res.send({ title: poll.title, options: poll.opts, strict: poll.strict });
-        redisCachePoll(poll);
-      });
-    }
-  });
+  var cache = yield redis.get('q:' + id);
+  if (cache) {
+    maxCache(res);
+    res.set('Content-Type', 'application/json');
+    res.send(cache);
+  } else {
+    var poll = yield Poll.find(id);
+    maxCache(res);
+    res.send({ title: poll.title, options: poll.opts, strict: poll.strict });
+    redisCachePoll(poll);
+  }
 };
 
-exports.show = function(req, res) {
-  return Poll.findEncoded(req.params.id).then(function(poll) {
-    res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
-  });
+exports.show = function *(req, res) {
+  var poll = yield Poll.findEncoded(req.params.id);
+  res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
 };
