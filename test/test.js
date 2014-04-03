@@ -7,16 +7,47 @@ var settings = require('../lib/settings').configure({
 var Promise = require('bluebird');
 var Poll = require('../lib/poll');
 var assert = require('chai').assert;
-var request = require('request-json');
+var url = require('url');
+var request = require('co-request');
 var server = require('../server');
 var port = process.env.PORT || 3001;
-var client = request.newClient('http://localhost:' + port);
 var co = require('co');
+var mocha = require('co-mocha');
 var mongodb = require('mongodb');
 var MongoClient = Promise.promisifyAll(mongodb.MongoClient);
 Promise.promisifyAll(mongodb.Db.prototype);
 
 server.listen(port, function() { });
+
+function Client(endpoint) {
+  this.endpoint = endpoint;
+
+  this.get = function(path, json) {
+    return request({
+      method: 'GET',
+           json: true,
+      url: url.resolve(this.endpoint, path)
+    });
+  }
+
+  this.post = function(path, json) {
+    return request({
+      method: 'POST',
+      json: json,
+      url: url.resolve(this.endpoint, path)
+    });
+  }
+
+  this.patch = function(path, json) {
+    return request({
+      method: 'PATCH',
+      json: json,
+      url: url.resolve(this.endpoint, path)
+    });
+  }
+}
+
+var client = new Client('http://localhost:' + port + '/');
 
 after(function *() {
   var db = yield MongoClient.connectAsync(settings.options.mongo);
@@ -63,169 +94,225 @@ describe('Server', function() {
   });
 
   describe('POST /polls', function() {
-    it('requires a title value', function(done) {
+    it('requires a title value', function *() {
       delete poll.title;
-      client.post('polls',  poll, function(err, res, body) {
-        assert.equal(res.statusCode, 400, body);
-        done();
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('requires a non-empty title', function(done) {
+    it('requires a non-empty title', function *() {
       poll.title = ' ';
-      client.post('polls',  poll, function(err, res, body) {
-        assert.equal(res.statusCode, 400, body);
-        done();
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('requires an option value', function(done) {
+    it('requires a title less than 140 characters', function *() {
+      poll.title = 'x';
+      for (var i = 0; i < 140; ++i)
+        poll.title += 'x';
+
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires an option value', function *() {
       delete poll.options;
-      client.post('polls',  poll, function(err, res, body) {
-        assert.equal(res.statusCode, 400, body);
-        done();
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('requires at least two options', function(done) {
+    it('requires at least 2 options', function *() {
       poll.options = ['Red'];
-      client.post('polls',  poll, function(err, res, body) {
-        assert.equal(res.statusCode, 400, body);
-        done();
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('requires non-empty options', function(done) {
+    it('requires less than 32 options', function *() {
+      poll.options = ['x'];
+      for (var i = 0; i < 32; ++i) {
+        poll.options.push('x');
+      }
+
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires option length less than 140 characters', function *() {
+      poll.options = ['Red', 'Green', 'x'];
+      for (var i = 0; i < 140; ++i) {
+        poll.options[2] += 'x';
+      }
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires non-empty options', function *() {
       poll.options = ['Red', 'Green', ''];
-      client.post('polls',  poll, function(err, res, body) {
-        assert.equal(res.statusCode, 400, body);
-        done();
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('requires a strict value', function(done) {
+    it('requires a strict value', function *() {
       delete poll.strict;
-      client.post('polls',  poll, function(err, res, body) {
-        assert.equal(res.statusCode, 400, body);
-        done();
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('successfully creates a poll', function(done) {
-      client.post('polls', poll, function(err, res, body) {
-        assert.equal(res.statusCode, 201, body);
-        assert.isDefined(res.headers.location);
-        done();
-      });
+    it('successfully creates a poll', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      assert.isDefined(res.body.path);
+      assert.isDefined(res.body.path.web);
+      assert.isDefined(res.body.path.api);
     });
   });
 
   describe('GET /polls/:id', function() {
-    it('returns 404 when poll does not exist', function(done) {
-      client.get('polls/123456789', function(err, res, body) {
-        assert.equal(res.statusCode, 404, body);
-        done();
-      });
+    it('returns 404 when poll does not exist', function *() {
+      var res = yield client.get('polls/123456789');
+      assert.equal(res.statusCode, 404);
     });
 
-    it('returns the poll', function(done) {
-      client.post('polls', poll, function(err, res, body) {
-        assert.equal(res.statusCode, 201, body);
-        var location = res.headers.location;
-        client.get(location, function(err, res, newPoll) {
-          assert.equal(res.statusCode, 200, newPoll);
-          assert(res.headers['content-type'].indexOf('application/json') >= 0);
-          assert.equal(newPoll.title, poll.title);
-          assert.isUndefined(newPoll.strict);
-          assert.equal(newPoll.options.length, poll.options.length);
-          done();
-        });
-      });
+    it('returns an error when ID is invalid', function *() {
+      var res = yield client.get('polls/b42@');
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('returns the poll', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      assert(res.headers['content-type'].indexOf('application/json') >= 0);
+      var newPoll = res.body;
+      assert.equal(newPoll.title, poll.title);
+      assert.isUndefined(newPoll.strict);
+      assert.equal(newPoll.options.length, poll.options.length);
+      for (var i = 0; i < poll.options.length; ++i) {
+        assert.equal(newPoll.options[i][0], poll.options[i]);
+        assert.equal(newPoll.options[i][1], 0);
+      }
     });
   });
 
   describe('GET /polls/:id/options', function() {
-    it('returns 404 when poll does not exist', function(done) {
-      client.get('polls/123456789/options', function(err, res, body) {
-        assert.equal(res.statusCode, 404, body);
-        done();
-      });
+    it('returns 404 when poll does not exist', function *() {
+      var res = yield client.get('polls/123456789/options');
+      assert.equal(res.statusCode, 404);
     });
 
-    it('returns the poll options', function(done) {
-      client.post('polls', poll, function(err, res, body) {
-        assert.equal(res.statusCode, 201, body);
-        var location = res.headers.location;
-        client.get(location + '/options', function(err, res, created) {
-          assert.equal(res.statusCode, 200, created);
-          assert(res.headers['content-type'].indexOf('application/json') >= 0);
-          assert.equal(created.title, poll.title);
-          assert.deepEqual(created.options, poll.options);
-          done();
-        });
-      });
+    it('returns an error when ID is invalid', function *() {
+      var res = yield client.get('polls/b42@/options');
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('returns the poll options', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.get(location + '/options');
+      assert.equal(res.statusCode, 200);
+      assert(res.headers['content-type'].indexOf('application/json') >= 0);
+      var created = res.body;
+      assert.equal(created.title, poll.title);
+      assert.deepEqual(created.options, poll.options);
     });
   });
 
   describe('PATCH /polls/:id', function() {
     var vote = { vote: 0 };
 
-    it('returns 404 when poll does not exist', function(done) {
-      client.patch('polls/123456789', vote, function(err, res, body) {
-        assert.equal(res.statusCode, 404, body);
-        done();
-      });
+    it('returns 404 when poll does not exist', function *() {
+      var res = yield client.patch('polls/123456789', vote);
+      assert.equal(res.statusCode, 404);
     });
 
-    it('successfully increments the vote count', function(done) {
-      client.post('polls', poll, function(err, res, body) {
-        assert.equal(res.statusCode, 201, body);
-        var location = res.headers.location;
-        client.patch(location, vote, function(err, res, body) {
-          assert.equal(res.statusCode, 200, body);
-          client.get(location, function(err, res, votedPoll) {
-            assert.equal(votedPoll.options[0][1], 1);
-            assert.equal(votedPoll.options[1][1], 0);
-            assert.equal(votedPoll.options[2][1], 0);
-            done();
-          });
-        });
-      });
+    it('returns an error when ID is invalid', function *() {
+      var res = yield client.patch('polls/b42@', vote);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('returns an error when voting multiple times on a strict poll', function(done) {
-      client.post('polls', poll, function(err, res, body) {
-        assert.equal(res.statusCode, 201, body);
-        var location = res.headers.location;
-        client.patch(location, vote, function(err, res, body) {
-          assert.equal(res.statusCode, 200, body);
-          client.patch(location, vote, function(err, res, body) {
-            assert.equal(res.statusCode, 400, body);
-            done();
-          });
-        });
-      });
+    it('requires a vote value', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, { });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
     });
 
-    it('allows voting multiple times on a non-strict poll', function(done) {
+    it('requires an integer vote value', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, { vote: 'asdf' });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires a positive integer vote value', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, { vote: -1 });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('successfully increments the vote count', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, vote);
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      var votedPoll = res.body;
+      assert.equal(votedPoll.options[0][1], 1);
+      assert.equal(votedPoll.options[1][1], 0);
+      assert.equal(votedPoll.options[2][1], 0);
+    });
+
+    it('returns an error when voting multiple times on a strict poll', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, vote);
+      assert.equal(res.statusCode, 200);
+      res = yield client.patch(location, vote);
+      assert.equal(res.statusCode, 400);
+    });
+
+    it('allows voting multiple times on a non-strict poll', function *() {
       poll.strict = false;
-      client.post('polls', poll, function(err, res, body) {
-        assert.equal(res.statusCode, 201, body);
-        var location = res.headers.location;
-        client.patch(location, vote, function(err, res, body) {
-          assert.equal(res.statusCode, 200, body);
-          client.patch(location, vote, function(err, res, body) {
-            assert.equal(res.statusCode, 200, body);
-            client.get(location, function(err, res, votedPoll) {
-              assert.equal(res.statusCode, 200, votedPoll);
-              assert.equal(votedPoll.options[0][1], 2);
-              assert.equal(votedPoll.options[1][1], 0);
-              assert.equal(votedPoll.options[2][1], 0);
-              done();
-            });
-          });
-        });
-      });
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, vote);
+      assert.equal(res.statusCode, 200);
+      res = yield client.patch(location, vote);
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      var votedPoll = res.body;
+      assert.equal(res.statusCode, 200, votedPoll);
+      assert.equal(votedPoll.options[0][1], 2);
+      assert.equal(votedPoll.options[1][1], 0);
+      assert.equal(votedPoll.options[2][1], 0);
     });
   });
 });

@@ -112,6 +112,8 @@ exports.vote = function *(req, res) {
     err("'vote' must be in range.");
   }
 
+  // TODO: Ensure vote is in positive range.
+
   var commitVote = co(function *() {
     var poll = yield Poll.vote(id, voteIndex);
     res.send({});
@@ -154,6 +156,11 @@ exports.options = function *(req, res) {
 };
 
 exports.show = function *(req, res) {
-  var poll = yield Poll.findEncoded(req.params.id);
+  var id = encoding.toNumber(req.params.id);
+  if (isNaN(id)) {
+    err("'id' is invalid.");
+  }
+
+  var poll = yield Poll.find(id);
   res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
 };
