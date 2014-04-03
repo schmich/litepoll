@@ -82,7 +82,6 @@ exports.create = function *(req, res) {
     creator: req.ip
   });
   
-  // TODO: Check for errors.
   var encodedId = encoding.fromNumber(poll._id);
   res.set('Location', '/polls/' + encodedId);
   res.send(201, { path: { web: '/' + encodedId + '/s', api: '/polls/' + encodedId } });
@@ -121,7 +120,7 @@ exports.vote = function *(req, res) {
 
   var commitVote = co(function *() {
     var poll = yield Poll.vote(id, voteIndex);
-    res.send({});
+    res.send(200, { path: { web: '/' + encodedId + '/r' } });
     streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
   });
 

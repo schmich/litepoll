@@ -288,6 +288,8 @@ describe('Server', function() {
       var location = res.headers.location;
       res = yield client.patch(location, vote);
       assert.equal(res.statusCode, 200);
+      assert.isDefined(res.body.path);
+      assert.isDefined(res.body.path.web);
       res = yield client.get(location);
       assert.equal(res.statusCode, 200);
       var votedPoll = res.body;

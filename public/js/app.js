@@ -73,10 +73,9 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
 
   $scope.submitVote = function() {
     $http({ method: 'PATCH', url: '/polls/' + pollId, data: { vote: +$scope.vote } })
-      .success(function(data) {
+      .success(function(res) {
         localStorageService.set(voteKey, +$scope.vote);
-        // TODO: Pull from response JSON.
-        window.location.pathname = '/' + pollId + '/r';
+        window.location.pathname = res.path.web;
       })
       .error(function(data) {
         alert(data.error);
