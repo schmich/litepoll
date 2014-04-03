@@ -12,12 +12,12 @@ Free polls for every man, woman, child, and politician on Earth.
 - [Install NodeJS](http://nodejs.org/)
 - Clone repo: `git clone git@github.com:schmich/litepoll`
 - Install dependencies: `npm install`
-- Running the server
+- Run the server
  - `mongod`
  - `redis-server`
  - `npm start`
  - [http://localhost:3000](http://localhost:3000)
-- Testing
+- Run tests
  - `mongod`
  - `redis-server`
  - `npm test`
