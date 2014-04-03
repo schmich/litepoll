@@ -169,6 +169,12 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
     
   var client = new Faye.Client('/stream');
   client.subscribe('/polls/' + pollId, function(message) {
+    if (message.votes) {
+      updateVotes(message.votes);
+    }
+  });
+
+  function updateVotes(votes) {
     if ($scope.poll == null)
       return;
 
@@ -178,7 +184,7 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
         options[i][1] = votes[i];
       }
     });
-  });
+  }
 });
 
 app.filter('plural', function() {
