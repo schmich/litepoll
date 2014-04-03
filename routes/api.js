@@ -112,16 +112,18 @@ exports.vote = function *(req, res) {
     err("'vote' must be in range.");
   }
 
-  // TODO: Ensure vote is in positive range.
+  var cache = yield redis.get('q:' + id);
+  var poll = cache ? JSON.parse(cache) : yield Poll.find(id);
+
+  if (voteIndex >= (poll.opts || poll.options).length) {
+    err("'vote' must be in range.");
+  }
 
   var commitVote = co(function *() {
     var poll = yield Poll.vote(id, voteIndex);
     res.send({});
     streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
   });
-
-  var cache = yield redis.get('q:' + id);
-  var poll = cache ? JSON.parse(cache) : yield Poll.find(id);
 
   if (poll.strict) {
     var ipKey = 'q:' + id + ':ip';

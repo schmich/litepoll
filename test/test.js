@@ -273,6 +273,15 @@ describe('Server', function() {
       assert.isDefined(res.body.error);
     });
 
+    it('requires a vote value in range', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, { vote: poll.options.length });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
     it('successfully increments the vote count', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
