@@ -18,6 +18,7 @@ Free polls for every man, woman, child, and politician on Earth.
  - `npm start`
  - [http://localhost:3000](http://localhost:3000)
 - Run tests
+ - `npm install -g mocha`
  - `mongod`
  - `redis-server`
  - `npm test`
