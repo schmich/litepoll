@@ -23,11 +23,15 @@ function redisCachePoll(poll) {
   });
 }
 
-function maxCache(res, seconds) {
-  cache(res, 60 * 60 * 24 * 365 /* 1 year */);
+function setNoCache(res) {
+  res.set('Cache-Control', 'max-age=0, no-cache, no-store, must-revalidate');
 }
 
-function cache(res, seconds) {
+function setMaxCache(res, seconds) {
+  setCache(res, 60 * 60 * 24 * 365 /* 1 year */);
+}
+
+function setCache(res, seconds) {
   var expires = moment().utc().add('years', 1);
   res.set('Cache-Control', 'public, max-age=' + seconds);
   res.set('Expires', expires.format('ddd, D MMM YYYY HH:mm:ss [GMT]'));
@@ -145,12 +149,12 @@ exports.options = function *(req, res) {
 
   var cache = yield redis.get('q:' + id);
   if (cache) {
-    maxCache(res);
+    setMaxCache(res);
     res.set('Content-Type', 'application/json');
     res.send(cache);
   } else {
     var poll = yield Poll.find(id);
-    maxCache(res);
+    setMaxCache(res);
     res.send({ title: poll.title, options: poll.opts, strict: poll.strict });
     redisCachePoll(poll);
   }
@@ -161,6 +165,8 @@ exports.show = function *(req, res) {
   if (isNaN(id)) {
     err("'id' is invalid.");
   }
+
+  setNoCache(res);
 
   var poll = yield Poll.find(id);
   res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
