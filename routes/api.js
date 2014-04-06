@@ -134,10 +134,10 @@ exports.vote = function *(req, res) {
     if (count == 0) {
       err("You have already voted in this poll.");
     } else {
-      yield commitVote();
+      commitVote();
     }
   } else {
-    yield commitVote();
+    commitVote();
   }
 };
 
