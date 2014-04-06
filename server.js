@@ -41,16 +41,21 @@ app.configure('production', function() {
 function handleErrors(handler) {
   return function(req, res) {
     co(handler)(req, res, function(err, _) {
-      if (err instanceof NotFoundError) {
-        res.status(404);
-        if (req.accepts('html', 'json') == 'html') {
-          res.render('404');
-        } else {
-          res.send({ error: 'Not found.' });
+      if (err) {
+        if (err instanceof NotFoundError) {
+          res.status(404);
+          if (req.accepts('html', 'json') == 'html') {
+            res.render('404');
+          } else {
+            res.send({ error: 'Not found.' });
+          }
+        } else if (err instanceof BadRequestError) {
+          res.status(400);
+          res.send({ error: err.message });
+        } else if (err) {
+          res.status(500);
+          res.send({ error: 'Unexpected error.' });
         }
-      } else if (err instanceof BadRequestError) {
-        res.status(400);
-        res.send({ error: err.message });
       }
     });
   }
