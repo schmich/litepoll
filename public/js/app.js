@@ -146,6 +146,10 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   $scope.poll = null;
   $scope.totalVotes = null;
 
+  $scope.showComments = function() {
+    document.getElementById('comment').focus();
+  };
+
   $scope.$watch('poll.options', function(options) {
     var total = 0;
     angular.forEach(options, function(option) {
@@ -171,6 +175,8 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   client.subscribe('/polls/' + pollId, function(message) {
     if (message.votes) {
       updateVotes(message.votes);
+    } else if (message.comment) {
+      addComment(message.comment);
     }
   });
 
@@ -185,6 +191,50 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
       }
     });
   }
+
+  function addComment(comment) {
+    $scope.$apply(function() {
+      $scope.poll.comments.push(comment);
+    });
+  }
+});
+
+app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
+  var commentKey = null;
+  $scope.hasCommented = false;
+
+  $scope.$watch('poll', function(poll) {
+    if (!poll) {
+      return;
+    }
+
+    commentKey = 'comment:' + poll.id;
+    $scope.hasCommented = localStorageService.get(commentKey);
+  });
+
+  $scope.addComment = function() {
+    var params = { comment: $scope.comment };
+
+    $http.post('/polls/' + $scope.poll.id + '/comments', params)
+      .success(function() {
+        localStorageService.set(commentKey, true);
+        $scope.hasCommented = true;
+        $scope.comment = '';
+      })
+      .error(function(res) {
+        alert(res.error);
+      });
+  };
+});
+
+app.filter('reverse', function() {
+  return function(items) {
+    if (!items) {
+      return items;
+    }
+
+    return items.slice().reverse();
+  };
 });
 
 app.filter('plural', function() {
@@ -247,6 +297,18 @@ app.factory('localStorageService', function() {
       }
     }
   }
+});
+
+app.directive('stopEvent', function() {
+  return {
+    restrict: 'A',
+    link: function (scope, element, attr) {
+      element.bind(attr.stopEvent, function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      });
+    }
+  };
 });
 
 app.directive('ngEnterTab', function() {

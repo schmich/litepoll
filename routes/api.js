@@ -83,7 +83,8 @@ exports.create = function *(req, res) {
     opts: options,
     votes: votes,
     strict: strict ? true : false,
-    creator: req.ip
+    creator: req.ip,
+    comments: []
   });
   
   var encodedId = encoding.fromNumber(poll._id);
@@ -161,7 +162,8 @@ exports.options = function *(req, res) {
 };
 
 exports.show = function *(req, res) {
-  var id = encoding.toNumber(req.params.id);
+  var encodedId = req.params.id;
+  var id = encoding.toNumber(encodedId);
   if (isNaN(id)) {
     err("'id' is invalid.");
   }
@@ -169,5 +171,35 @@ exports.show = function *(req, res) {
   setNoCache(res);
 
   var poll = yield Poll.find(id);
-  res.send({ title: poll.title, options: _.zip(poll.opts, poll.votes) });
+  res.send({
+    id: encodedId,
+    title: poll.title,
+    options: _.zip(poll.opts, poll.votes),
+    comments: _.map(poll.comments, function(c) { return c.text })
+  });
+};
+
+exports.comment = function *(req, res) {
+  var encodedId = req.params.id;
+  var id = encoding.toNumber(encodedId);
+  if (isNaN(id)) {
+    err("'id' is invalid.");
+  }
+
+  var comment = req.body.comment;
+  if (!comment) {
+    err("'comment' is required.");
+  }
+
+  if (comment.length < 1 || comment.length > 140) {
+    err("'comment' length must be between 1-140 characters.");
+  }
+
+  var added = yield Poll.addComment(id, req.ip, comment);
+  if (added) {
+    res.send({});
+    streaming.getClient().publish('/polls/' + encodedId, { comment: comment });
+  } else {
+    err("You have already commented on this poll.");
+  }
 };

@@ -68,17 +68,32 @@ beforeEach(function *() {
 });
 
 describe('Poll', function() {
+  var pollInfo = {
+    title: 'Best color?',
+    opts: ['Red', 'Green', 'Blue'],
+    votes: [0, 0, 0],
+    strict: true,
+    creator: '127.0.0.1'
+  };
+
   describe('#create', function() {
     it('creates a poll', function *() {
-      var poll = yield Poll.create({
-        title: 'Best color?',
-        opts: ['Red', 'Green', 'Blue'],
-        votes: [0, 0, 0],
-        strict: true,
-        creator: '127.0.0.1'
-      });
-
+      var poll = yield Poll.create(pollInfo);
       assert.isNotNull(poll);
+    });
+  });
+
+  describe('#addComment', function() {
+    it('adds a comment', function *() {
+      var poll = yield Poll.create(pollInfo);
+      assert.isNotNull(poll);
+      var added = yield Poll.addComment(poll._id, '1.1.1.1', 'Comment');
+      assert(added);
+      poll = yield Poll.find(poll._id);
+      assert.isNotNull(poll.comments);
+      assert.equal(poll.comments.length, 1);
+      assert.equal(poll.comments[0].text, 'Comment');
+      assert.equal(poll.comments[0].ip, '1.1.1.1');
     });
   });
 });
@@ -199,6 +214,8 @@ describe('Server', function() {
       var newPoll = res.body;
       assert.equal(newPoll.title, poll.title);
       assert.isUndefined(newPoll.strict);
+      assert.isDefined(newPoll.comments);
+      assert.equal(newPoll.comments.length, 0);
       assert.equal(newPoll.options.length, poll.options.length);
       for (var i = 0; i < poll.options.length; ++i) {
         assert.equal(newPoll.options[i][0], poll.options[i]);
@@ -324,6 +341,93 @@ describe('Server', function() {
       assert.equal(votedPoll.options[0][1], 2);
       assert.equal(votedPoll.options[1][1], 0);
       assert.equal(votedPoll.options[2][1], 0);
+    });
+  });
+
+  describe('POST /polls/:id/comment', function() {
+    var comment = { comment: 'Comment' };
+
+    it('returns 404 when poll does not exist', function *() {
+      var res = yield client.post('polls/123456789/comments', comment);
+      assert.equal(res.statusCode, 404);
+    });
+
+    it('returns an error when ID is invalid', function *() {
+      var res = yield client.post('polls/b42@/comments', comment);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires a comment', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', { });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires a non-empty comment', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', { comment: '' });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires a comment less than 140 characters', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      var comment = { comment: 'x' };
+      for (var i = 0; i < 140; ++i) {
+        comment.comment += 'x';
+      }
+      res = yield client.post(location + '/comments', comment);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('creates a comment', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', comment);
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(location);
+      var newPoll = res.body;
+      assert.isDefined(newPoll.comments);
+      assert.equal(newPoll.comments.length, 1);
+      assert.equal(newPoll.comments[0], comment.comment);
+    });
+
+    it('returns an error when commenting multiple times on a strict poll', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', comment);
+      assert.equal(res.statusCode, 200);
+      res = yield client.post(location + '/comments', comment);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('allows commenting multiple times on a non-strict poll', function *() {
+      poll.strict = false;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', { comment: 'Zero' });
+      assert.equal(res.statusCode, 200);
+      res = yield client.post(location + '/comments', { comment: 'One' });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(location);
+      var newPoll = res.body;
+      assert.isDefined(newPoll.comments);
+      assert.equal(newPoll.comments.length, 2);
+      assert.equal(newPoll.comments[0], 'Zero');
+      assert.equal(newPoll.comments[1], 'One');
     });
   });
 });

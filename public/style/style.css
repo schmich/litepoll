@@ -166,6 +166,23 @@ input[type="radio"]:checked + label {
 .results .votes {
   color: #888;
   font-size: 24px;
+  display: inline-block;
+}
+.subtitle {
+  font-size: 24px;
+}
+.comments-area {
+  margin-top: 40px;
+}
+.comments {
+  margin: 0;
+  padding: 0;
+  margin-top: 20px;
+}
+.comment {
+  margin-left: 10px;
+  margin-bottom: 10px;
+  list-style-type: none;
 }
 #vote-poll .options {
   list-style-type: none;
@@ -351,6 +368,9 @@ only screen and (min-resolution: 2dppx) {
     width: 100%;
   }
   ol, ul {
-    margin-left: 45px;
+    margin-left: 40px;
+  }
+  .comment {
+    margin-left: 0px;
   }
 }

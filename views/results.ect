@@ -3,7 +3,11 @@
 <div ng-controller="PollResultCtrl" data-poll-id="<%= @id %>">
   <div class="results">
     <div class="title">{{poll.title}}</div>
-    <div class="votes">{{totalVotes | plural:'vote' | titleCase}}</div>
+    <div class="subtitle">
+      <div class="votes">{{totalVotes | plural:'vote' | titleCase}}</div>
+      &middot;
+      <a href="#comments" ng-click="showComments()">{{poll.comments.length | plural:'comment' | titleCase}}</a>
+    </div>
     <ol>
       <li class="option" ng-repeat="option in poll.options | orderBy:votes track by $index">
         <div class="value">
@@ -11,12 +15,21 @@
           <div class="fill" style="width: {{option[1] / totalVotes | percent:2}}"></div>
         </div>
         <div class="stats">
-         {{option[1] / totalVotes | percent:0}} / {{option[1] | plural:'vote' | titleCase}}
+         {{option[1] / totalVotes | percent:0}} &middot; {{option[1] | plural:'vote' | titleCase}}
         </div>
       </li>
     </ol>
-    <center>
-      <a href="/<%= @id %>/s" class="action">Share Poll</a>
-    </center>
+    <div class="comments-area">
+      <a name="comments"></a>
+      <div class="title">Comments</div>
+      <form ng-controller="PollCommentCtrl" ng-submit="addComment($event)">
+        <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Comment on this poll" />
+      </form>
+      <ul class="comments">
+        <li class="comment" ng-repeat="comment in poll.comments | reverse track by $index">
+          {{comment}}
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
