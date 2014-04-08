@@ -6,7 +6,7 @@ var http = require('http');
 var path = require('path');
 var ect = require('ect');
 var co = require('co');
-var streaming = require('./lib/streaming');
+var sse = require('./lib/sse');
 var NotFoundError = require('./lib/not-found');
 var BadRequestError = require('./lib/bad-request');
 
@@ -67,6 +67,7 @@ app.get('/polls/:id', handleErrors(api.show));
 app.get('/polls/:id/options', handleErrors(api.options));
 app.patch('/polls/:id', handleErrors(api.vote));
 app.post('/polls/:id/comments', handleErrors(api.comment));
+app.get('/polls/:id/events', handleErrors(api.events));
 app.get('/', poll.create);
 app.get('/:id', handleErrors(poll.show));
 app.get('/:id/r', handleErrors(poll.results));
@@ -77,6 +78,5 @@ app.use(function(req, res) {
 });
 
 var server = http.createServer(app);
-streaming.attach(server);
 
 module.exports = server;

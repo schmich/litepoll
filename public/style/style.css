@@ -289,7 +289,11 @@ input[type="radio"]:checked + label {
   color: #4af;
   text-decoration: none;
   display: block;
-  margin-bottom: 10px;
+  margin: 0 auto 10px auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 90%;
 }
 .poll-link a:hover {
   color: #17f;

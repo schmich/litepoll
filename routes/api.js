@@ -1,11 +1,12 @@
 var redis = require('../lib/settings').settings.redis;
 var Poll = require('../lib/poll');
-var streaming = require('../lib/streaming');
 var encoding = require('../lib/encoding');
 var moment = require('moment');
 var Promise = require('bluebird');
 var NotFoundError = require('../lib/not-found');
 var BadRequestError = require('../lib/bad-request');
+var createKey = require('../lib/key').createKey;
+var sse = require('../lib/sse');
 var co = require('co');
 var _ = require('underscore');
 
@@ -48,6 +49,11 @@ exports.create = function *(req, res) {
     err("'title' length must not exceed 140 characters.")
   }
 
+  var secret = req.body.secret;
+  if (secret === undefined) {
+    err("A value for 'secret' is required.");
+  }
+
   var options = req.body.options;
   if (!options || !options.length) {
     err("At least two non-empty 'options' are required.");
@@ -78,29 +84,34 @@ exports.create = function *(req, res) {
     err("A value for 'strict' is required.");
   }
 
+  var key = null;
+  if (secret) {
+    key = yield createKey();
+  }
+
   var poll = yield Poll.create({
     title: title,
     opts: options,
     votes: votes,
     strict: strict ? true : false,
     creator: req.ip,
-    comments: []
+    comments: [],
+    key: key
   });
   
-  var encodedId = encoding.fromNumber(poll._id);
-  res.set('Location', '/polls/' + encodedId);
-  res.send(201, { path: { web: '/' + encodedId + '/s', api: '/polls/' + encodedId } });
+  var id = encoding.fromNumber(poll._id);
+  if (secret) {
+    id += ':' + key;
+  }
+
+  res.set('Location', '/polls/' + id);
+  res.send(201, { path: { web: '/' + id + '/s', api: '/polls/' + id } });
 
   redisCachePoll(poll);
 };
 
 exports.vote = function *(req, res) {
-  var encodedId = req.params.id;
-
-  var id = encoding.toNumber(encodedId);
-  if (isNaN(id)) {
-    err("'id' is invalid.");
-  }
+  var id = req.params.id;
 
   var vote = req.body.vote;
   if (vote == null) {
@@ -125,8 +136,8 @@ exports.vote = function *(req, res) {
 
   var commitVote = co(function *() {
     var poll = yield Poll.vote(id, voteIndex);
-    res.send(200, { path: { web: '/' + encodedId + '/r' } });
-    streaming.getClient().publish('/polls/' + encodedId, { votes: poll.votes });
+    res.send(200, { path: { web: '/' + id + '/r' } });
+    sse.publish('polls:' + id, 'vote', poll.votes);
   });
 
   if (poll.strict) {
@@ -143,10 +154,7 @@ exports.vote = function *(req, res) {
 };
 
 exports.options = function *(req, res) {
-  var id = encoding.toNumber(req.params.id);
-  if (isNaN(id)) {
-    err("'id' is invalid.");
-  }
+  var id = req.params.id;
 
   var cache = yield redis.get('q:' + id);
   if (cache) {
@@ -162,17 +170,13 @@ exports.options = function *(req, res) {
 };
 
 exports.show = function *(req, res) {
-  var encodedId = req.params.id;
-  var id = encoding.toNumber(encodedId);
-  if (isNaN(id)) {
-    err("'id' is invalid.");
-  }
+  var id = req.params.id;
 
   setNoCache(res);
 
   var poll = yield Poll.find(id);
   res.send({
-    id: encodedId,
+    id: id,
     title: poll.title,
     options: _.zip(poll.opts, poll.votes),
     comments: _.map(poll.comments, function(c) { return c.text })
@@ -180,11 +184,7 @@ exports.show = function *(req, res) {
 };
 
 exports.comment = function *(req, res) {
-  var encodedId = req.params.id;
-  var id = encoding.toNumber(encodedId);
-  if (isNaN(id)) {
-    err("'id' is invalid.");
-  }
+  var id = req.params.id;
 
   var comment = req.body.comment;
   if (!comment) {
@@ -198,8 +198,12 @@ exports.comment = function *(req, res) {
   var added = yield Poll.addComment(id, req.ip, comment);
   if (added) {
     res.send({});
-    streaming.getClient().publish('/polls/' + encodedId, { comment: comment });
+    sse.publish('polls:' + id, 'comment', comment);
   } else {
     err("You have already commented on this poll.");
   }
+};
+
+exports.events = function *(req, res) {
+  sse.stream(req, res, 'polls:' + req.params.id);
 };

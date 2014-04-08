@@ -1,5 +1,15 @@
 var app = angular.module('litepoll', [])
 
+function ServerEvents(url) {
+  var source = new EventSource(url);
+
+  this.on = function(event, callback) {
+    source.addEventListener(event, function(e) {
+      callback(JSON.parse(e.data), e); 
+    });
+  };
+}
+
 app.config(['$compileProvider', '$httpProvider', function($compileProvider, $httpProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(http|https|sms|mailto).*/);
   $httpProvider.defaults.headers.patch = {
@@ -13,7 +23,8 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   $scope.poll = {
     title: '',
     options: ['', '', '', ''],
-    strict: true
+    strict: true,
+    secret: false
   };
 
   $scope.advanced = false;
@@ -171,18 +182,22 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
    return -item[1];
   };
     
-  var client = new Faye.Client('/stream');
-  client.subscribe('/polls/' + pollId, function(message) {
-    if (message.votes) {
-      updateVotes(message.votes);
-    } else if (message.comment) {
-      addComment(message.comment);
+  var client = new ServerEvents('/polls/' + pollId + '/events');
+
+  client.on('comment', function(comment) {
+    if (!$scope.poll) {
+      return;
     }
+
+    $scope.$apply(function() {
+      $scope.poll.comments.push(comment);
+    });
   });
 
-  function updateVotes(votes) {
-    if ($scope.poll == null)
+  client.on('vote', function(votes) {
+    if (!$scope.poll) {
       return;
+    }
 
     $scope.$apply(function() {
       var options = $scope.poll.options;
@@ -190,13 +205,7 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
         options[i][1] = votes[i];
       }
     });
-  }
-
-  function addComment(comment) {
-    $scope.$apply(function() {
-      $scope.poll.comments.push(comment);
-    });
-  }
+  });
 });
 
 app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {

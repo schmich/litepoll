@@ -73,7 +73,8 @@ describe('Poll', function() {
     opts: ['Red', 'Green', 'Blue'],
     votes: [0, 0, 0],
     strict: true,
-    creator: '127.0.0.1'
+    creator: '127.0.0.1',
+    secret: false
   };
 
   describe('#create', function() {
@@ -104,7 +105,8 @@ describe('Server', function() {
     poll = {
       title: 'Best color?',
       options: ['Red', 'Green', 'Blue'],
-      strict: true
+      strict: true,
+      secret: false
     };
   });
 
@@ -135,6 +137,13 @@ describe('Server', function() {
 
     it('requires an option value', function *() {
       delete poll.options;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires a secret value', function *() {
+      delete poll.secret;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
@@ -190,6 +199,14 @@ describe('Server', function() {
       assert.isDefined(res.body.path.web);
       assert.isDefined(res.body.path.api);
     });
+
+    it('successfully creates a secret poll', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      assert(res.headers.location.indexOf(':') >= 1);
+    });
   });
 
   describe('GET /polls/:id', function() {
@@ -222,6 +239,37 @@ describe('Server', function() {
         assert.equal(newPoll.options[i][1], 0);
       }
     });
+
+    it('returns the secret poll', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      assert(res.headers['content-type'].indexOf('application/json') >= 0);
+      var newPoll = res.body;
+      assert.equal(newPoll.title, poll.title);
+      assert.isUndefined(newPoll.strict);
+      assert.isDefined(newPoll.comments);
+      assert.equal(newPoll.comments.length, 0);
+      assert.equal(newPoll.options.length, poll.options.length);
+      for (var i = 0; i < poll.options.length; ++i) {
+        assert.equal(newPoll.options[i][0], poll.options[i]);
+        assert.equal(newPoll.options[i][1], 0);
+      }
+    });
+
+    it('returns an error when key is incorrect', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      var parts = location.split(':');
+      assert.equal(parts.length, 2);
+      res = yield client.get(parts[0] + ':x');
+      assert.equal(res.statusCode, 404);
+    });
   });
 
   describe('GET /polls/:id/options', function() {
@@ -246,6 +294,30 @@ describe('Server', function() {
       var created = res.body;
       assert.equal(created.title, poll.title);
       assert.deepEqual(created.options, poll.options);
+    });
+
+    it('returns the secret poll options', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.get(location + '/options');
+      assert.equal(res.statusCode, 200);
+      assert(res.headers['content-type'].indexOf('application/json') >= 0);
+      var created = res.body;
+      assert.equal(created.title, poll.title);
+      assert.deepEqual(created.options, poll.options);
+    });
+
+    it('returns an error when key is incorrect', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      var parts = location.split(':');
+      assert.equal(parts.length, 2);
+      res = yield client.get(parts[0] + ':x/options');
+      assert.equal(res.statusCode, 404);
     });
   });
 
@@ -315,6 +387,23 @@ describe('Server', function() {
       assert.equal(votedPoll.options[2][1], 0);
     });
 
+    it('successfully increments the vote count on a secret poll', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, vote);
+      assert.equal(res.statusCode, 200);
+      assert.isDefined(res.body.path);
+      assert.isDefined(res.body.path.web);
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      var votedPoll = res.body;
+      assert.equal(votedPoll.options[0][1], 1);
+      assert.equal(votedPoll.options[1][1], 0);
+      assert.equal(votedPoll.options[2][1], 0);
+    });
+
     it('returns an error when voting multiple times on a strict poll', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
@@ -341,6 +430,17 @@ describe('Server', function() {
       assert.equal(votedPoll.options[0][1], 2);
       assert.equal(votedPoll.options[1][1], 0);
       assert.equal(votedPoll.options[2][1], 0);
+    });
+
+    it('returns an error when key is incorrect', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      var parts = location.split(':');
+      assert.equal(parts.length, 2);
+      res = yield client.patch(parts[0] + ':x', vote);
+      assert.equal(res.statusCode, 404);
     });
   });
 
@@ -402,6 +502,20 @@ describe('Server', function() {
       assert.equal(newPoll.comments[0], comment.comment);
     });
 
+    it('creates a comment on a secret poll', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', comment);
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(location);
+      var newPoll = res.body;
+      assert.isDefined(newPoll.comments);
+      assert.equal(newPoll.comments.length, 1);
+      assert.equal(newPoll.comments[0], comment.comment);
+    });
+
     it('returns an error when commenting multiple times on a strict poll', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
@@ -428,6 +542,17 @@ describe('Server', function() {
       assert.equal(newPoll.comments.length, 2);
       assert.equal(newPoll.comments[0], 'Zero');
       assert.equal(newPoll.comments[1], 'One');
+    });
+
+    it('returns an error when key is incorrect', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      var parts = location.split(':');
+      assert.equal(parts.length, 2);
+      res = yield client.post(parts[0] + ':x/comments', comment);
+      assert.equal(res.statusCode, 404);
     });
   });
 });
