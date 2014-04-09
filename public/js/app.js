@@ -223,7 +223,7 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
     });
 
   $scope.votes = function(item) {
-   return -item[1];
+    return -item[1];
   };
     
   var client = new ServerEvents('/polls/' + pollId + '/events');

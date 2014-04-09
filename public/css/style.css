@@ -317,10 +317,15 @@ input[type="checkbox"] {
 }
 .fill {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -2px;
+  left: -1px;
   background: #4af;
-  height: 35px;
+  height: 39px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -khtml-border-radius: 3px;
+  transition: width 0.3s ease;
 }
 .caption {
   position: relative;

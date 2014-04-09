@@ -25,7 +25,7 @@ function Client(endpoint) {
   this.get = function(path, json) {
     return request({
       method: 'GET',
-           json: true,
+      json: true,
       url: url.resolve(this.endpoint, path)
     });
   }
