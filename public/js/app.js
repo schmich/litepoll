@@ -18,8 +18,6 @@ app.config(['$compileProvider', '$httpProvider', function($compileProvider, $htt
 }]);
 
 app.controller('PollCreateCtrl', function($scope, $http) {
-  $scope.modified = [];
-
   $scope.poll = {
     title: '',
     options: ['', '', '', ''],
@@ -28,9 +26,25 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     multi: false
   };
 
-  $scope.showAdvanced = false;
-  $scope.toggleAdvanced = function() {
-    $scope.showAdvanced = !$scope.showAdvanced;
+  $scope.showAdvanced = (window.location.hash == '#advanced');
+  $scope.toggleAdvanced = function(advanced) {
+    if (advanced === undefined) {
+      $scope.showAdvanced = !$scope.showAdvanced;
+    } else {
+      $scope.showAdvanced = advanced;
+    }
+
+    if ($scope.showAdvanced) {
+      window.history.pushState(null, '', '#advanced');
+    } else {
+      window.history.pushState(null, '', '/');
+    }
+  };
+
+  window.onpopstate = function(e) {
+    $scope.$apply(function() {
+      $scope.showAdvanced = (window.location.hash == '#advanced');
+    });
   };
 
   function maybeAddOption(index) {
@@ -61,7 +75,7 @@ app.controller('PollCreateCtrl', function($scope, $http) {
       })
       .error(function() {
         alert('You must specify a title and at least two options.');
-        $scope.showAdvanced = false;
+        $scope.toggleAdvanced(false);
       });
   };
 
