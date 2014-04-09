@@ -23,13 +23,13 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   $scope.poll = {
     title: '',
     options: ['', '', '', ''],
-    strict: true,
+    lax: false,
     secret: false
   };
 
   $scope.advanced = false;
-  $scope.showAdvanced = function() {
-    $scope.advanced = true;
+  $scope.toggleAdvanced = function() {
+    $scope.advanced = !$scope.advanced;
   };
 
   function maybeAddOption(index) {
@@ -55,6 +55,8 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   $scope.createPoll = function() {
     var poll = angular.copy($scope.poll);
     poll.options = [];
+    poll.strict = !poll.lax;
+    delete poll.lax;
 
     for (var i = 0; i < $scope.poll.options.length; ++i) {
       var option = $scope.poll.options[i];

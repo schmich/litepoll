@@ -82,6 +82,7 @@ input[type="radio"] + label, .results .option {
   background: white;
   position: relative;
   padding-bottom: 120px;
+  overflow: hidden;
 }
 .footer {
   color: #888;
@@ -153,7 +154,9 @@ input[type="checkbox"] {
   display: none;
 }
 input[type="checkbox"] + label {
-  padding: 9px;
+  padding: 9px 0;
+  display: block;
+  cursor: pointer;
 }
 input[type="checkbox"] + label .fa:before {
   color: #ccc;
@@ -196,7 +199,7 @@ input[type="checkbox"] {
   margin: 18px 0;
 }
 #create-poll .actions {
-  margin-top: 30px;
+  margin-top: 40px;
 }
 #create-poll .actions a {
   display: block;
@@ -247,6 +250,10 @@ input[type="checkbox"] {
   padding: 15px 30px;
   display: inline-block;
   cursor: pointer;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -khtml-border-radius: 5px;
 }
 .action:hover, .action:focus {
   background: #0084f2;
@@ -375,15 +382,12 @@ input[type="checkbox"] {
 .not-found .action {
   margin-bottom: 20px;
 }
-.advanced {
-  margin-top: 30px;
-  margin-bottom: 30px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.advanced label {
-  display: block;
-  cursor: pointer;
+#advanced-poll-options p {
+  font-size: 24px;
+  color: #333;
+  padding: 0;
+  margin: 0 0 30px 0;
+  line-height: 150%;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),
