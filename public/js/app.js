@@ -24,7 +24,8 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     title: '',
     options: ['', '', '', ''],
     lax: false,
-    secret: false
+    secret: false,
+    multi: false
   };
 
   $scope.advanced = false;
@@ -65,6 +66,9 @@ app.controller('PollCreateCtrl', function($scope, $http) {
       }
     }
 
+    poll.choices = poll.multi ? poll.options.length : 1;
+    delete poll.multi;
+
     $http.post('/polls', poll)
       .success(function(res) {
         window.location.pathname = res.path.web;
@@ -79,15 +83,33 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
   var pollId = $element[0].dataset.pollId;
 
   $scope.poll = null;
-  $scope.vote = null;
 
-  var voteKey = 'vote:' + pollId;
-  $scope.currentVote = localStorageService.get(voteKey);
+  $scope.oneVote = null;
+  $scope.multiVote = [];
+  $scope.votes = [];
 
-  $scope.submitVote = function() {
-    $http({ method: 'PATCH', url: '/polls/' + pollId, data: { vote: +$scope.vote } })
+  var votesKey = 'votes:' + pollId;
+  $scope.currentVotes = localStorageService.get(votesKey);
+
+  $scope.$watch('oneVote', function(vote) {
+    if (vote != null) {
+      $scope.votes = [+vote];
+    }
+  });
+
+  $scope.$watch('multiVote', function(votes) {
+    $scope.votes = [];
+    for (var index in votes) {
+      if (votes[index]) {
+        $scope.votes.push(+index);
+      }
+    }
+  }, true);
+
+  $scope.submitVotes = function() {
+    $http({ method: 'PATCH', url: '/polls/' + pollId, data: { votes: $scope.votes } })
       .success(function(res) {
-        localStorageService.set(voteKey, +$scope.vote);
+        localStorageService.set(votesKey, $scope.votes);
         window.location.pathname = res.path.web;
       })
       .error(function(data) {
@@ -96,10 +118,10 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
   };
 
   $http.get('/polls/' + pollId + '/options')
-    .success(function(data) {
-      $scope.poll = data;
+    .success(function(res) {
+      $scope.poll = res;
     })
-    .error(function(data) {
+    .error(function() {
     });
 });
 

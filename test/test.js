@@ -74,7 +74,8 @@ describe('Poll', function() {
     votes: [0, 0, 0],
     strict: true,
     creator: '127.0.0.1',
-    secret: false
+    secret: false,
+    choices: 1
   };
 
   describe('#create', function() {
@@ -106,7 +107,8 @@ describe('Server', function() {
       title: 'Best color?',
       options: ['Red', 'Green', 'Blue'],
       strict: true,
-      secret: false
+      secret: false,
+      choices: 1
     };
   });
 
@@ -206,6 +208,45 @@ describe('Server', function() {
       assert.equal(res.statusCode, 201);
       assert.isDefined(res.headers.location);
       assert(res.headers.location.indexOf(':') >= 1);
+    });
+
+    it('requires a choices value', function *() {
+      delete poll.choices;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires an integer choices', function *() {
+      poll.choices = 'foo';
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires choices >= 1', function *() {
+      poll.choices = 0;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires choices <= options.length', function *() {
+      poll.choices = poll.options.length + 1;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('successfully creates a poll with max choices', function *() {
+      poll.choices = poll.options.length;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.choices, poll.choices);
     });
   });
 
@@ -322,20 +363,20 @@ describe('Server', function() {
   });
 
   describe('PATCH /polls/:id', function() {
-    var vote = { vote: 0 };
+    var votes = { votes: [0] };
 
     it('returns 404 when poll does not exist', function *() {
-      var res = yield client.patch('polls/123456789', vote);
+      var res = yield client.patch('polls/123456789', votes);
       assert.equal(res.statusCode, 404);
     });
 
     it('returns an error when ID is invalid', function *() {
-      var res = yield client.patch('polls/b42@', vote);
+      var res = yield client.patch('polls/b42@', votes);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
 
-    it('requires a vote value', function *() {
+    it('requires a votes value', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
@@ -344,11 +385,23 @@ describe('Server', function() {
       assert.isDefined(res.body.error);
     });
 
-    it('requires an integer vote value', function *() {
+    it('requires an integer votes value', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, { vote: 'asdf' });
+      res = yield client.patch(location, { votes: 'asdf' });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+      res = yield client.patch(location, { votes: ['asdf'] });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires non-empty votes value', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, { votes: [] });
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
@@ -357,7 +410,7 @@ describe('Server', function() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, { vote: -1 });
+      res = yield client.patch(location, { votes: [-1] });
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
@@ -366,7 +419,7 @@ describe('Server', function() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, { vote: poll.options.length });
+      res = yield client.patch(location, { votes: [poll.options.length] });
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
@@ -375,7 +428,7 @@ describe('Server', function() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, vote);
+      res = yield client.patch(location, votes);
       assert.equal(res.statusCode, 200);
       assert.isDefined(res.body.path);
       assert.isDefined(res.body.path.web);
@@ -392,7 +445,7 @@ describe('Server', function() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, vote);
+      res = yield client.patch(location, votes);
       assert.equal(res.statusCode, 200);
       assert.isDefined(res.body.path);
       assert.isDefined(res.body.path.web);
@@ -408,9 +461,9 @@ describe('Server', function() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, vote);
+      res = yield client.patch(location, votes);
       assert.equal(res.statusCode, 200);
-      res = yield client.patch(location, vote);
+      res = yield client.patch(location, votes);
       assert.equal(res.statusCode, 400);
     });
 
@@ -419,9 +472,9 @@ describe('Server', function() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.patch(location, vote);
+      res = yield client.patch(location, votes);
       assert.equal(res.statusCode, 200);
-      res = yield client.patch(location, vote);
+      res = yield client.patch(location, votes);
       assert.equal(res.statusCode, 200);
       res = yield client.get(location);
       assert.equal(res.statusCode, 200);
@@ -439,8 +492,38 @@ describe('Server', function() {
       var location = res.headers.location;
       var parts = location.split(':');
       assert.equal(parts.length, 2);
-      res = yield client.patch(parts[0] + ':x', vote);
+      res = yield client.patch(parts[0] + ':x', votes);
       assert.equal(res.statusCode, 404);
+    });
+
+    it('returns an error when vote count exceeds max choices', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.patch(location, { votes: [0, 1] });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('successfully increments the vote count with multiple choices', function *() {
+      poll.choices = poll.options.length;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      var votes = [];
+      for (var i = 0; i < poll.options.length; ++i) {
+        votes.push(i);
+      }
+      res = yield client.patch(location, { votes: votes });
+      assert.equal(res.statusCode, 200);
+      assert.isDefined(res.body.path);
+      assert.isDefined(res.body.path.web);
+      res = yield client.get(location);
+      assert.equal(res.statusCode, 200);
+      var votedPoll = res.body;
+      assert.equal(votedPoll.options[0][1], 1);
+      assert.equal(votedPoll.options[1][1], 1);
+      assert.equal(votedPoll.options[2][1], 1);
     });
   });
 

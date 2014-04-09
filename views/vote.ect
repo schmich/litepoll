@@ -1,31 +1,41 @@
 <% extend 'layouts/main.ect' %>
-<form name="form" id="vote-poll" ng-controller="PollVoteCtrl" ng-submit="submitVote()" data-poll-id="<%= @id %>">
+<form name="form" id="vote-poll" ng-controller="PollVoteCtrl" ng-submit="submitVotes()" data-poll-id="<%= @id %>">
   <h1 class="title">{{poll.title}}</h1>
   <ol class="options">
-    <li class="option" ng-repeat="option in poll.options track by $index">
+    <li class="option" ng-switch on="poll.choices" ng-repeat="option in poll.options track by $index">
       <input type="radio"
+        ng-switch-when="1"
         id="options-{{$index}}"
         name="options"
         value="{{$index}}"
-        ng-model="$parent.vote"
-        ng-checked="currentVote == $index"
-        ng-disabled="currentVote != null"
+        ng-model="$parent.$parent.oneVote"
+        ng-checked="currentVotes.indexOf($index) >= 0"
+        ng-disabled="currentVotes != null"
+      />
+      <input type="checkbox"
+        ng-switch-default
+        id="options-{{$index}}"
+        name="options"
+        value="{{$index}}"
+        ng-model="$parent.$parent.multiVote[$index]"
+        ng-checked="currentVotes.indexOf($index) >= 0"
+        ng-disabled="currentVotes != null"
       />
       <label for="options-{{$index}}"><i class="fa"></i> {{option}}</label>
     </li>
   </ol>
   <center>
-    <div class="notice" ng-if="currentVote != null">
+    <div class="notice" ng-if="currentVotes != null">
       You have already voted in this poll.
     </div>
     <div class="actions">
       <input type="submit"
-        title="{{(currentVote != null || vote == null) && 'Select an option first' || ''}}"
+        title="{{(currentVotes != null || votes.length == 0) && 'Select an option first' || ''}}"
         id="vote-now"
         class="action"
         value="Vote Now"
-        ng-disabled="vote == null"
-        ng-hide="currentVote != null"
+        ng-disabled="votes.length == 0"
+        ng-hide="currentVotes != null"
       />
       <a href="/<%= @id %>/r" id="see-results" class="action">See Results</a>
     </div>

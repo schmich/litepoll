@@ -35,6 +35,8 @@
     </center>
   </div>
   <div id="advanced-poll-options" ng-show="advanced">
+    <input type="checkbox" id="multi" ng-model="poll.multi"><label for="multi"><i class="fa"></i> Allow multiple choices</label>
+    <p>Enable if you want to allow voters to select multiple options when voting. By default, only one option can be chosen.</p>
     <input type="checkbox" id="lax" ng-model="poll.lax"><label for="lax"><i class="fa"></i> Allow multiple votes per IP</label>
     <p>Enable if you expect voting from schools, businesses, or other institutions sharing a router or network connection.</p>
     <input type="checkbox" id="secret" ng-model="poll.secret"><label for="secret"><i class="fa"></i> Private poll</label>

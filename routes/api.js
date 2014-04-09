@@ -14,8 +14,13 @@ function err(message) {
   throw new BadRequestError(message);
 }
 
-function redisCachePoll(poll) {
-  var cache = { title: poll.title, options: poll.opts, strict: poll.strict };
+function redisCachePollOptions(poll) {
+  var cache = {
+    title: poll.title,
+    options: poll.opts,
+    choices: poll.choices
+  };
+
   var key = 'q:' + poll._id;
   redis.set(key, JSON.stringify(cache), function(err) {
     if (!err) {
@@ -84,6 +89,20 @@ exports.create = function *(req, res) {
     err("A value for 'strict' is required.");
   }
 
+  var choices = req.body.choices;
+  if (choices === undefined) {
+    err("A value for 'choices' is required.");
+  }
+
+  var choices = parseInt(choices);
+  if (isNaN(choices) || !isFinite(choices)) {
+    err("Integer 'choices' is required.");
+  }
+
+  if (choices < 1 || choices > options.length) {
+    err("'choices' must be between 1 and the number of options.");
+  }
+
   var key = null;
   if (secret) {
     key = yield createKey();
@@ -96,7 +115,8 @@ exports.create = function *(req, res) {
     strict: strict ? true : false,
     creator: req.ip,
     comments: [],
-    key: key
+    key: key,
+    choices: choices
   });
   
   var id = encoding.fromNumber(poll._id);
@@ -107,35 +127,53 @@ exports.create = function *(req, res) {
   res.set('Location', '/polls/' + id);
   res.send(201, { path: { web: '/' + id + '/s', api: '/polls/' + id } });
 
-  redisCachePoll(poll);
+  redisCachePollOptions(poll);
 };
 
 exports.vote = function *(req, res) {
   var id = req.params.id;
 
-  var vote = req.body.vote;
-  if (vote == null) {
-    err("'vote' is required.");
+  var votes = req.body.votes;
+  if (votes === undefined) {
+    err("'votes' is required.");
   }
 
-  var voteIndex = parseInt(vote);
-  if (isNaN(voteIndex) || !isFinite(voteIndex)) {
-    err("Integer 'vote' is required.");
+  if ((typeof votes != 'object') || (votes.length === undefined)) {
+    err("'votes' must be an array.");
   }
 
-  if (voteIndex < 0) {
-    err("'vote' must be in range.");
+  if (votes.length == 0) {
+    err("'votes' must not be empty.");
+  }
+
+  for (var i = 0; i < votes.length; ++i) {
+    var index = parseInt(votes[i]);
+    if (isNaN(index) || !isFinite(index)) {
+      err("Each of 'votes' must be an integer.");
+    }
+
+    if (index < 0) {
+      err("Each of 'votes' must be in range.");
+    }
+
+    votes[i] = index;
   }
 
   var cache = yield redis.get('q:' + id);
   var poll = cache ? JSON.parse(cache) : yield Poll.find(id);
 
-  if (voteIndex >= (poll.opts || poll.options).length) {
-    err("'vote' must be in range.");
+  if (votes.length > poll.choices) {
+    err("'votes' count cannot exceed max poll choices.");
+  }
+
+  for (var i = 0; i < votes.length; ++i) {
+    if (votes[i] >= (poll.opts || poll.options).length) {
+      err("Each of 'votes' must be in range.");
+    }
   }
 
   var commitVote = co(function *() {
-    var poll = yield Poll.vote(id, voteIndex);
+    var poll = yield Poll.vote(id, votes);
     res.send(200, { path: { web: '/' + id + '/r' } });
     sse.publish('polls:' + id, 'vote', poll.votes);
   });
@@ -164,8 +202,13 @@ exports.options = function *(req, res) {
   } else {
     var poll = yield Poll.find(id);
     setMaxCache(res);
-    res.send({ title: poll.title, options: poll.opts, strict: poll.strict });
-    redisCachePoll(poll);
+    res.send({
+      title: poll.title,
+      options: poll.opts,
+      choices: poll.choices
+    });
+
+    redisCachePollOptions(poll);
   }
 };
 
@@ -179,7 +222,8 @@ exports.show = function *(req, res) {
     id: id,
     title: poll.title,
     options: _.zip(poll.opts, poll.votes),
-    comments: _.map(poll.comments, function(c) { return c.text })
+    comments: _.map(poll.comments, function(c) { return c.text }),
+    choices: poll.choices
   });
 };
 

@@ -62,13 +62,6 @@ input[type="text"] {
   padding: 0;
   width: 100%;
 }
-input[type="radio"] {
-  display: none;
-}
-input[type="radio"] + label {
-  cursor: pointer;
-  display: block;
-}
 input[type="radio"] + label, .results .option {
   padding: 9px 10px;
 }
@@ -123,6 +116,13 @@ a:hover {
 .results .action {
   margin-top: 30px;
 }
+input[type="radio"] {
+  display: none;
+}
+input[type="radio"] + label {
+  cursor: pointer;
+  display: block;
+}
 input[type="radio"] + label .fa {
   color: #ccc;
   margin-right: 5px;
@@ -154,19 +154,25 @@ input[type="checkbox"] {
   display: none;
 }
 input[type="checkbox"] + label {
-  padding: 9px 0;
+  padding: 9px 10px;
   display: block;
   cursor: pointer;
+}
+input[type="checkbox"]:disabled + label:hover {
+  cursor: default;
+}
+input[type="checkbox"]:disabled + label {
+  color: #aaa;
 }
 input[type="checkbox"] + label .fa:before {
   color: #ccc;
   content: "\f096";
   margin-right: 8px;
 }
-input[type="checkbox"] + label:hover {
+input[type="checkbox"]:not(:disabled) + label:hover {
   color: #4af;
 }
-input[type="checkbox"] + label:hover .fa:before {
+input[type="checkbox"]:not(:disabled) + label:hover .fa:before {
   color: #4af;
 }
 input[type="checkbox"]:checked + label {
@@ -386,8 +392,11 @@ input[type="checkbox"] {
   font-size: 24px;
   color: #333;
   padding: 0;
-  margin: 0 0 30px 0;
+  margin: 0 0 30px 37px;
   line-height: 150%;
+}
+#advanced-poll-options input + label {
+  padding: 0 0 10px 0;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),
@@ -428,5 +437,8 @@ only screen and (min-resolution: 2dppx) {
   input[type="checkbox"] + label {
     padding-left: 0;
     padding-right: 0;
+  }
+  #advanced-poll-options p {
+    margin: 0 0 30px 0;
   }
 }
