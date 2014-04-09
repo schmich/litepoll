@@ -33,7 +33,7 @@ html, body, input {
   font-weight: 200;
 }
 body {
-  background: #404042;
+  background: url('/assets/img/bg.png') #505052;
 }
 h1 {
   font-size: 28px;
@@ -61,6 +61,9 @@ input[type="radio"] + label, .results .option {
   padding: 9px 10px;
 }
 .container {
+  -webkit-box-shadow: 0px 0px 50px #333;
+  -moz-box-shadow: 0px 0px 50px #333;
+  box-shadow: 0px 0px 50px #333;
   min-height: 100%;
   max-width: 900px;
   margin: 0 auto;
@@ -355,6 +358,11 @@ only screen and (min-resolution: 2dppx) {
   .logo {
     background: url('/assets/img/logo@2x.png') no-repeat;
     background-size: contain;
+  }
+}
+@media only screen and (min-width: 0em) and (max-width: 900px /* same as .container max-width */) {
+  body {
+    background: #505052;
   }
 }
 @media only screen and (min-width: 0em) and (max-width: 40em) {
