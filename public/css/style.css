@@ -154,7 +154,8 @@ input[type="checkbox"] {
   display: none;
 }
 input[type="checkbox"] + label {
-  padding: 9px 10px;
+  padding: 0;
+  margin: 9px 0px;
   display: block;
   cursor: pointer;
 }
@@ -315,6 +316,16 @@ input[type="checkbox"] {
   padding-left: 5px;
   z-index: 1;
 }
+@-webkit-keyframes glow {
+  from {
+    box-shadow: none;
+    background: #4af;
+  }
+  to {
+    box-shadow: 0px 0px 6px 2px #6cf;
+    background: #6cf;
+  }
+}
 .fill {
   position: absolute;
   top: -2px;
@@ -326,6 +337,9 @@ input[type="checkbox"] {
   border-radius: 3px;
   -khtml-border-radius: 3px;
   transition: width 0.3s ease;
+}
+.glow {
+  -webkit-animation: glow 0.4s ease-out 0s 2 alternate;
 }
 .caption {
   position: relative;
@@ -400,9 +414,6 @@ input[type="checkbox"] {
   margin: 0 0 30px 37px;
   line-height: 150%;
 }
-#advanced-poll-options input + label {
-  padding: 0 0 10px 0;
-}
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),
 only screen and (min--moz-device-pixel-ratio: 2),
@@ -440,8 +451,8 @@ only screen and (min-resolution: 2dppx) {
     margin-left: 0px;
   }
   input[type="checkbox"] + label {
-    padding-left: 0;
-    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
   }
   #advanced-poll-options p {
     margin: 0 0 30px 0;
