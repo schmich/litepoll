@@ -154,8 +154,7 @@ input[type="checkbox"] {
   display: none;
 }
 input[type="checkbox"] + label {
-  padding: 0;
-  margin: 9px 0px;
+  padding: 9px 10px;
   display: block;
   cursor: pointer;
 }
@@ -411,7 +410,7 @@ input[type="checkbox"] {
   font-size: 24px;
   color: #333;
   padding: 0;
-  margin: 0 0 30px 37px;
+  margin: 0 0 30px 47px;
   line-height: 150%;
 }
 @media
@@ -450,9 +449,13 @@ only screen and (min-resolution: 2dppx) {
   .comment {
     margin-left: 0px;
   }
+  input[type="radio"] + label {
+    padding-left: 0;
+    padding-right: 0;
+  }
   input[type="checkbox"] + label {
-    margin-left: 0;
-    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
   #advanced-poll-options p {
     margin: 0 0 30px 0;
