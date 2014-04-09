@@ -1,6 +1,6 @@
 <% extend 'layouts/main-no-footer.ect' %>
 <form name="form" id="create-poll" ng-controller="PollCreateCtrl" ng-submit="createPoll()">
-  <div ng-show="!advanced">
+  <div ng-hide="showAdvanced">
     <div class="title">
       <input type="text"
         id="title"
@@ -34,7 +34,7 @@
       </div>
     </center>
   </div>
-  <div id="advanced-poll-options" ng-show="advanced">
+  <div id="advanced-poll-options" ng-show="showAdvanced">
     <input type="checkbox" id="multi" ng-model="poll.multi"><label for="multi"><i class="fa"></i> Multiple choices</label>
     <p>Enable to allow voters to select multiple options when voting. By default, only one option can be chosen.</p>
     <input type="checkbox" id="lax" ng-model="poll.lax"><label for="lax"><i class="fa"></i> Multiple votes per IP</label>

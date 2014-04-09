@@ -28,9 +28,9 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     multi: false
   };
 
-  $scope.advanced = false;
+  $scope.showAdvanced = false;
   $scope.toggleAdvanced = function() {
-    $scope.advanced = !$scope.advanced;
+    $scope.showAdvanced = !$scope.showAdvanced;
   };
 
   function maybeAddOption(index) {
@@ -54,6 +54,18 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   };
 
   $scope.createPoll = function() {
+    var poll = pollFromForm($scope.poll);
+    $http.post('/polls', poll)
+      .success(function(res) {
+        window.location.pathname = res.path.web;
+      })
+      .error(function() {
+        alert('You must specify a title and at least two options.');
+        $scope.showAdvanced = false;
+      });
+  };
+
+  function pollFromForm(poll) {
     var poll = angular.copy($scope.poll);
     poll.options = [];
     poll.strict = !poll.lax;
@@ -69,14 +81,8 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     poll.choices = poll.multi ? poll.options.length : 1;
     delete poll.multi;
 
-    $http.post('/polls', poll)
-      .success(function(res) {
-        window.location.pathname = res.path.web;
-      })
-      .error(function() {
-        alert('You must specify a title and at least two options.');
-      });
-  };
+    return poll;
+  }
 });
 
 app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageService) {
