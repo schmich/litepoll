@@ -27,8 +27,8 @@
     </li>
   </ol>
   <div ng-if="advanced" class="advanced">
-    <label><input type="checkbox" ng-model="poll.strict">Only allow one vote per IP</label>
-    <label><input type="checkbox" ng-model="poll.secret">Private poll</label>
+    <input type="checkbox" id="strict" ng-model="poll.strict"><label for="strict"><i class="fa"></i> Only allow one vote per IP</label>
+    <input type="checkbox" id="secret" ng-model="poll.secret"><label for="secret"><i class="fa"></i> Private poll</label>
   </div>
   <center>
     <div class="actions">

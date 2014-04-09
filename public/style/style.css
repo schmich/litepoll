@@ -17,6 +17,18 @@
 .fa-copy:before {
   content: "\f0c1";
 }
+.fa-preload {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 0;
+  height: 0;
+  line-height: 0;
+  font-size: 0;
+}
+.fa-preload:before {
+  content: "\f0c1";
+}
 html, body, form, ol, ul, li, h1, h2, h3, h4 {
   margin: 0;
   padding: 0;
@@ -89,7 +101,7 @@ a {
   text-decoration: none;
 }
 a:hover {
-  color: #17f;
+  color: #0084f2;
 }
 .content {
   margin: 0 40px;
@@ -136,6 +148,39 @@ input[type="radio"]:checked + label .fa:before {
 }
 input[type="radio"]:checked + label {
   color: #4af;
+}
+input[type="checkbox"] {
+  display: none;
+}
+input[type="checkbox"] + label {
+  padding: 9px;
+}
+input[type="checkbox"] + label .fa:before {
+  color: #ccc;
+  content: "\f096";
+  margin-right: 8px;
+}
+input[type="checkbox"] + label:hover {
+  color: #4af;
+}
+input[type="checkbox"] + label:hover .fa:before {
+  color: #4af;
+}
+input[type="checkbox"]:checked + label {
+  color: #4af;
+}
+input[type="checkbox"]:checked + label .fa:before {
+  content: "\f046";
+  color: #4af;
+  margin-right: 4px;
+}
+input[type="checkbox"] {
+  vertical-align: bottom;
+  position: relative;
+  top: -10px;
+  padding: 0;
+  margin: 0;
+  margin-right: 15px;
 }
 #create-poll #title {
   margin: 0 10px 10px 0;
@@ -204,12 +249,12 @@ input[type="radio"]:checked + label {
   cursor: pointer;
 }
 .action:hover, .action:focus {
-  background: #17f;
+  background: #0084f2;
   color: #fff;
   text-decoration: none;
 }
 .action:focus {
-  outline: 1px solid #17f;
+  outline: 1px solid #0084f2;
 }
 .action:disabled {
   background: #aaa;
@@ -299,7 +344,7 @@ input[type="radio"]:checked + label {
   width: 90%;
 }
 .poll-link a:hover {
-  color: #17f;
+  color: #0084f2;
 }
 #copy-link, .copied {
   font-size: 22px;
@@ -339,15 +384,6 @@ input[type="radio"]:checked + label {
 .advanced label {
   display: block;
   cursor: pointer;
-  margin-bottom: 10px;
-}
-.advanced input[type="checkbox"] {
-  vertical-align: bottom;
-  position: relative;
-  top: -10px;
-  padding: 0;
-  margin: 0;
-  margin-right: 15px;
 }
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),
@@ -384,5 +420,9 @@ only screen and (min-resolution: 2dppx) {
   }
   .comment {
     margin-left: 0px;
+  }
+  input[type="checkbox"] + label {
+    padding-left: 0;
+    padding-right: 0;
   }
 }
