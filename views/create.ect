@@ -35,12 +35,12 @@
     </center>
   </div>
   <div id="advanced-poll-options" ng-show="showAdvanced">
-    <input type="checkbox" id="multi" ng-model="poll.multi"><label for="multi"><i class="fa"></i> Multiple choices</label>
-    <p>Allow voters to select multiple options when voting. By default, only one option can be chosen.</p>
+    <input type="checkbox" id="multi" ng-model="poll.multi"><label for="multi"><i class="fa"></i> Multiple selection</label>
+    <p>Allow voters to select multiple options when voting. By default, only one option can be selected.</p>
     <input type="checkbox" id="secret" ng-model="poll.secret"><label for="secret"><i class="fa"></i> Private poll</label>
     <p>Enable if you do not want your poll to be easily found. Anyone with the poll URL will be able to see it. You should not consider your poll to be secure.</p>
-    <input type="checkbox" id="lax" ng-model="poll.lax"><label for="lax"><i class="fa"></i> Relaxed IP checking</label>
-    <p>Enable if you expect voting from schools, businesses, or other institutions sharing a router or network connection.</p>
+    <input type="checkbox" id="lax" ng-model="poll.lax"><label for="lax"><i class="fa"></i> Skip IP checking</label>
+    <p>Allows multiple votes from the same IP. Enable if you expect voting from schools, businesses, or other institutions sharing a network connection.</p>
     <center>
       <div class="actions">
         <a href="" ng-click="toggleAdvanced()">&laquo; Go Back</a>
