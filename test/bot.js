@@ -46,14 +46,37 @@ function log(msg) {
   console.log('[bot] '.grey + msg);
 }
 
+function write(msg) {
+  process.stdout.write('[bot] '.grey + msg);
+}
+
+function append(msg) {
+  console.log(msg);
+}
+
+function success(response) {
+  return (response.statusCode >= 200 && response.statusCode < 300);
+}
+
+function writeResult(res) {
+  if (success(res)) {
+    append('OK'.green);
+  } else {
+    append(('' + res.statusCode).red);
+    console.log(res.body);
+  }
+}
+
 co(function *() {
   var client = new Client('http://localhost:3000/');
   var max = process.env.max;
   var id = process.env.poll;
   log('Automating votes for poll (' + id + ').');
 
-  log('Getting poll info.');
+  write('Getting poll info...');
   var res = yield client.get('/polls/' + id);
+  writeResult(res);
+
   var poll = res.body;
 
   log('Poll:');
@@ -61,13 +84,14 @@ co(function *() {
 
   var count = poll.options.length;
   log('Found ' + count + ' options.');
-  log('Voting up to ' + max + ' times.');
+  log('Voting ' + max + ' times.');
 
   for (var i = 0; i < max; ++i) {
     yield sleep(rand(100, 1000));
 
     var vote = rand(0, count - 1);
-    log('Voting for (' + vote + ') ' + poll.options[vote][0] + '.');
+    write('Vote ' + (i + 1) + ' for (' + vote + ') ' + poll.options[vote][0] + '...');
     var res = yield client.patch('/polls/' + id, { votes: [vote] });
+    writeResult(res);
   }
 })();
