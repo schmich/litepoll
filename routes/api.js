@@ -8,6 +8,7 @@ var BadRequestError = require('../lib/bad-request');
 var createKey = require('../lib/key').createKey;
 var sse = require('../lib/sse');
 var co = require('co');
+var ip = require('ip');
 var _ = require('underscore');
 
 function err(message) {
@@ -113,7 +114,7 @@ exports.create = function *(req, res) {
     opts: options,
     votes: votes,
     strict: strict ? true : false,
-    creator: req.ip,
+    creator: ip.toBuffer(req.ip),
     comments: [],
     key: key,
     choices: choices

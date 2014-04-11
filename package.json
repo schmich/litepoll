@@ -15,12 +15,13 @@
     "redis": "~0.10.0",
     "ect": "~0.5.6",
     "mongoose-auto-increment": "~3.0.1",
-    "mongoose": "~3.8.7",
+    "mongoose": "git://github.com/schmich/mongoose.git#a35dd6459a6775638a9d4620260d4712795408ab",
     "underscore": "~1.6.0",
     "moment": "~2.5.1",
     "bluebird": "~1.2.1",
     "co": "^3.0.5",
-    "co-redis": "^1.1.0"
+    "co-redis": "^1.1.0",
+    "ip": "^0.3.0"
   },
   "devDependencies": {
     "mocha": "^1.18.2",

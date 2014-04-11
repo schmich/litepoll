@@ -14,6 +14,7 @@ var port = process.env.PORT || 3001;
 var co = require('co');
 var mocha = require('co-mocha');
 var mongodb = require('mongodb');
+var ip = require('ip');
 var MongoClient = Promise.promisifyAll(mongodb.MongoClient);
 Promise.promisifyAll(mongodb.Db.prototype);
 
@@ -95,7 +96,7 @@ describe('Poll', function() {
       assert.isNotNull(poll.comments);
       assert.equal(poll.comments.length, 1);
       assert.equal(poll.comments[0].text, 'Comment');
-      assert.equal(poll.comments[0].ip, '1.1.1.1');
+      assert.equal(ip.toString(poll.comments[0].ip), '1.1.1.1');
     });
   });
 });
