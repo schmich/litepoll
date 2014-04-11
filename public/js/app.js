@@ -218,6 +218,7 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   $http.get('/polls/' + pollId)
     .success(function(data) {
       $scope.poll = data;
+      initializePoll($scope.poll);
     })
     .error(function(data) {
     });
@@ -244,12 +245,31 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
     }
 
     $scope.$apply(function() {
-      var options = $scope.poll.options;
-      for (var i = 0; i < options.length; ++i) {
-        options[i][1] = votes[i];
-      }
+      updateVotes(votes);
     });
   });
+
+  function initializePoll(poll) {
+    var votes = [];
+    for (var i = 0; i < poll.options.length; ++i) {
+      var option = poll.options[i];
+      votes.push(option[1]);
+      option[1] = 0;
+    }
+
+    setTimeout(function() {
+      $scope.$apply(function() {
+        updateVotes(votes);
+      });
+    }, 0);
+  }
+
+  function updateVotes(votes) {
+    var options = $scope.poll.options;
+    for (var i = 0; i < options.length; ++i) {
+      options[i][1] = votes[i];
+    }
+  }
 });
 
 app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
