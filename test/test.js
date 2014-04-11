@@ -276,8 +276,8 @@ describe('Server', function() {
       assert.equal(newPoll.comments.length, 0);
       assert.equal(newPoll.options.length, poll.options.length);
       for (var i = 0; i < poll.options.length; ++i) {
-        assert.equal(newPoll.options[i][0], poll.options[i]);
-        assert.equal(newPoll.options[i][1], 0);
+        assert.equal(newPoll.options[i], poll.options[i]);
+        assert.equal(newPoll.votes[i], 0);
       }
     });
 
@@ -296,8 +296,8 @@ describe('Server', function() {
       assert.equal(newPoll.comments.length, 0);
       assert.equal(newPoll.options.length, poll.options.length);
       for (var i = 0; i < poll.options.length; ++i) {
-        assert.equal(newPoll.options[i][0], poll.options[i]);
-        assert.equal(newPoll.options[i][1], 0);
+        assert.equal(newPoll.options[i], poll.options[i]);
+        assert.equal(newPoll.votes[i], 0);
       }
     });
 
@@ -435,9 +435,9 @@ describe('Server', function() {
       res = yield client.get(location);
       assert.equal(res.statusCode, 200);
       var votedPoll = res.body;
-      assert.equal(votedPoll.options[0][1], 1);
-      assert.equal(votedPoll.options[1][1], 0);
-      assert.equal(votedPoll.options[2][1], 0);
+      assert.equal(votedPoll.votes[0], 1);
+      assert.equal(votedPoll.votes[1], 0);
+      assert.equal(votedPoll.votes[2], 0);
     });
 
     it('successfully increments the vote count on a secret poll', function *() {
@@ -452,9 +452,9 @@ describe('Server', function() {
       res = yield client.get(location);
       assert.equal(res.statusCode, 200);
       var votedPoll = res.body;
-      assert.equal(votedPoll.options[0][1], 1);
-      assert.equal(votedPoll.options[1][1], 0);
-      assert.equal(votedPoll.options[2][1], 0);
+      assert.equal(votedPoll.votes[0], 1);
+      assert.equal(votedPoll.votes[1], 0);
+      assert.equal(votedPoll.votes[2], 0);
     });
 
     it('returns an error when voting multiple times on a strict poll', function *() {
@@ -480,9 +480,9 @@ describe('Server', function() {
       assert.equal(res.statusCode, 200);
       var votedPoll = res.body;
       assert.equal(res.statusCode, 200, votedPoll);
-      assert.equal(votedPoll.options[0][1], 2);
-      assert.equal(votedPoll.options[1][1], 0);
-      assert.equal(votedPoll.options[2][1], 0);
+      assert.equal(votedPoll.votes[0], 2);
+      assert.equal(votedPoll.votes[1], 0);
+      assert.equal(votedPoll.votes[2], 0);
     });
 
     it('returns an error when key is incorrect', function *() {
@@ -521,9 +521,9 @@ describe('Server', function() {
       res = yield client.get(location);
       assert.equal(res.statusCode, 200);
       var votedPoll = res.body;
-      assert.equal(votedPoll.options[0][1], 1);
-      assert.equal(votedPoll.options[1][1], 1);
-      assert.equal(votedPoll.options[2][1], 1);
+      assert.equal(votedPoll.votes[0], 1);
+      assert.equal(votedPoll.votes[1], 1);
+      assert.equal(votedPoll.votes[2], 1);
     });
   });
 

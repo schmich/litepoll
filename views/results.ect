@@ -8,13 +8,13 @@
       <a href="#comments" ng-click="showComments()">{{poll.comments.length | plural:'comment' | titleCase}}</a>
     </div>
     <ol>
-      <li class="option" ng-repeat="option in poll.options | orderBy:votes track by $index">
+      <li class="option" ng-repeat="option in options | orderBy:'-votes' track by $index">
         <div class="value">
-          <div class="caption">{{option[0]}}</div>
-          <div class="fill" style="width: {{option[1] / totalVotes | percent:2}}"></div>
+          <div class="caption">{{option.caption}}</div>
+          <div class="fill" style="width: {{option.votes / totalVotes | percent:2}}"></div>
         </div>
         <div class="stats">
-         {{option[1] / totalVotes | percent:0}} &middot; {{option[1] | plural:'vote' | titleCase}}
+         {{option.votes / totalVotes | percent:0}} &middot; {{option.votes | plural:'vote' | titleCase}}
         </div>
       </li>
     </ol>

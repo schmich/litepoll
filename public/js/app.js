@@ -193,39 +193,39 @@ app.controller('PollShareCtrl', function($scope, $http, $element) {
       var emailBody = "Vote in my poll now at " + $scope.link;
       $scope.emailLink = "mailto:?subject=" + u(emailSubject) + "&body=" + u(emailBody);
     })
-    .error(function(data) {
+    .error(function() {
     });
 });
 
 app.controller('PollResultCtrl', function($scope, $http, $element) {
   $scope.poll = null;
+  $scope.options = [];
   $scope.totalVotes = null;
 
   $scope.showComments = function() {
     document.getElementById('comment').focus();
   };
 
-  $scope.$watch('poll.options', function(options) {
-    var total = 0;
-    angular.forEach(options, function(option) {
-      total += option[1];
-    });
+  $scope.$watch('poll.votes', function(votes) {
+    $scope.totalVotes = 0;
+    for (var i = 0; i < votes.length; ++i) {
+      $scope.totalVotes += votes[i];
+    }
 
-    $scope.totalVotes = total;
+    $scope.options = [];
+    for (var i = 0; i < votes.length; ++i) {
+      $scope.options.push({ caption: $scope.poll.options[i], votes: votes[i] });
+    }
   }, true);
 
   var pollId = $element[0].dataset.pollId;
   $http.get('/polls/' + pollId)
-    .success(function(data) {
-      $scope.poll = data;
+    .success(function(res) {
+      $scope.poll = res;
       initializePoll($scope.poll);
     })
-    .error(function(data) {
+    .error(function() {
     });
-
-  $scope.votes = function(item) {
-    return -item[1];
-  };
     
   var client = new ServerEvents('/polls/' + pollId + '/events');
 
@@ -245,30 +245,21 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
     }
 
     $scope.$apply(function() {
-      updateVotes(votes);
+      $scope.poll.votes = votes;
     });
   });
 
   function initializePoll(poll) {
-    var votes = [];
-    for (var i = 0; i < poll.options.length; ++i) {
-      var option = poll.options[i];
-      votes.push(option[1]);
-      option[1] = 0;
+    var votes = poll.votes.slice();
+    for (var i = 0; i < poll.votes.length; ++i) {
+      poll.votes[i] = 0;
     }
 
     setTimeout(function() {
       $scope.$apply(function() {
-        updateVotes(votes);
+        poll.votes = votes;
       });
     }, 0);
-  }
-
-  function updateVotes(votes) {
-    var options = $scope.poll.options;
-    for (var i = 0; i < options.length; ++i) {
-      options[i][1] = votes[i];
-    }
   }
 });
 

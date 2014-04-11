@@ -221,7 +221,8 @@ exports.show = function *(req, res) {
   res.send({
     id: id,
     title: poll.title,
-    options: _.zip(poll.opts, poll.votes),
+    options: poll.opts,
+    votes: poll.votes,
     comments: _.map(poll.comments, function(c) { return c.text }),
     choices: poll.choices
   });
