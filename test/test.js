@@ -76,7 +76,8 @@ describe('Poll', function() {
     strict: true,
     creator: '127.0.0.1',
     secret: false,
-    choices: 1
+    choices: 1,
+    time: Date.now()
   };
 
   describe('#create', function() {

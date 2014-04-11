@@ -117,7 +117,8 @@ exports.create = function *(req, res) {
     creator: ip.toBuffer(req.ip),
     comments: [],
     key: key,
-    choices: choices
+    choices: choices,
+    time: Date.now()
   });
   
   var id = encoding.fromNumber(poll._id);
