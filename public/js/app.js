@@ -207,6 +207,10 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   };
 
   $scope.$watch('poll.votes', function(votes) {
+    if (votes == null) {
+      return;
+    }
+
     $scope.totalVotes = 0;
     for (var i = 0; i < votes.length; ++i) {
       $scope.totalVotes += votes[i];
@@ -291,25 +295,19 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
   };
 });
 
-app.filter('reverse', function() {
-  return function(items) {
-    if (!items) {
-      return items;
-    }
-
-    return items.slice().reverse();
-  };
-});
+function plural(count, word) {
+  if (count == 0) {
+    return 'no ' + word + 's';
+  } else if (count == 1) {
+    return '1 ' + word;
+  } else {
+    return count + ' ' + word + 's';
+  }
+}
 
 app.filter('plural', function() {
   return function(input, word) {
-    if (input == 0) {
-      return 'no ' + word + 's';
-    } else if (input == 1) {
-      return '1 ' + word;
-    } else {
-      return input + ' ' + word + 's';
-    }
+    return plural(input, word);
   };
 });
 
@@ -371,6 +369,43 @@ app.directive('stopEvent', function() {
         e.stopPropagation();
         e.preventDefault();
       });
+    }
+  };
+});
+
+function elapsedTimeFormat(timestamp) {
+  var elapsedMs = Date.now() - timestamp;
+  var elapsedMins = Math.floor(elapsedMs / (60 * 1000));
+
+  if (elapsedMins == 0) {
+    return 'Just now';
+  }
+
+  if (elapsedMins < 60) {
+    return plural(elapsedMins, 'minute') + ' ago';
+  }
+
+  var elapsedHours = Math.floor(elapsedMin / 60);
+  if (elapsedHours < 24) {
+    return plural(elapsedHours, 'hour') + ' ago';
+  }
+
+  var elapsedDays = Math.floor(elapsedHours / 24);
+  return plural(elapsedDays, 'day') + ' ago';
+}
+
+app.directive('timeSince', function() {
+  return {
+    restrict: 'A',
+    link: function (scope, elem, attr) {
+      var timestamp = scope.$eval(attr.timeSince);
+      elem.text(elapsedTimeFormat(timestamp));
+
+      setInterval(function() {
+        scope.$apply(function() {
+          elem.text(elapsedTimeFormat(timestamp));
+        });
+      }, 60 * 1000);
     }
   };
 });

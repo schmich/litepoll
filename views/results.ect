@@ -25,8 +25,9 @@
         <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Comment on this poll" />
       </form>
       <ul class="comments">
-        <li class="comment" ng-repeat="comment in poll.comments | reverse track by $index">
-          {{comment}}
+        <li class="comment" ng-repeat="comment in poll.comments | orderBy:'-time' track by $index">
+          {{comment.text}}
+          <span class="time" time-since="comment.time"></span>
         </li>
       </ul>
     </div>

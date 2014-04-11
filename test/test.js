@@ -584,7 +584,8 @@ describe('Server', function() {
       var newPoll = res.body;
       assert.isDefined(newPoll.comments);
       assert.equal(newPoll.comments.length, 1);
-      assert.equal(newPoll.comments[0], comment.comment);
+      assert.equal(newPoll.comments[0].text, comment.comment);
+      assert(newPoll.comments[0].time > 0);
     });
 
     it('creates a comment on a secret poll', function *() {
@@ -598,7 +599,8 @@ describe('Server', function() {
       var newPoll = res.body;
       assert.isDefined(newPoll.comments);
       assert.equal(newPoll.comments.length, 1);
-      assert.equal(newPoll.comments[0], comment.comment);
+      assert.equal(newPoll.comments[0].text, comment.comment);
+      assert(newPoll.comments[0].time > 0);
     });
 
     it('returns an error when commenting multiple times on a strict poll', function *() {
@@ -625,8 +627,10 @@ describe('Server', function() {
       var newPoll = res.body;
       assert.isDefined(newPoll.comments);
       assert.equal(newPoll.comments.length, 2);
-      assert.equal(newPoll.comments[0], 'Zero');
-      assert.equal(newPoll.comments[1], 'One');
+      assert.equal(newPoll.comments[0].text, 'Zero');
+      assert(newPoll.comments[0].time > 0);
+      assert.equal(newPoll.comments[1].text, 'One');
+      assert(newPoll.comments[1].time > 0);
     });
 
     it('returns an error when key is incorrect', function *() {

@@ -220,12 +220,17 @@ exports.show = function *(req, res) {
   setNoCache(res);
 
   var poll = yield Poll.find(id);
+
+  var comments = _.map(poll.comments, function(c) {
+    return { text: c.text, time: c.time.getTime() }
+  });
+
   res.send({
     id: id,
     title: poll.title,
     options: poll.opts,
     votes: poll.votes,
-    comments: _.map(poll.comments, function(c) { return c.text }),
+    comments: comments,
     choices: poll.choices
   });
 };
@@ -245,7 +250,7 @@ exports.comment = function *(req, res) {
   var added = yield Poll.addComment(id, req.ip, comment);
   if (added) {
     res.send({});
-    sse.publish('polls:' + id, 'comment', comment);
+    sse.publish('polls:' + id, 'comment', { text: added.text, time: added.time });
   } else {
     err("You have already commented on this poll.");
   }
