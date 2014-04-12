@@ -260,7 +260,7 @@ describe('Server', function() {
 
     it('returns an error when ID is invalid', function *() {
       var res = yield client.get('polls/b42@');
-      assert.equal(res.statusCode, 400);
+      assert.equal(res.statusCode, 404);
       assert.isDefined(res.body.error);
     });
 
@@ -323,7 +323,7 @@ describe('Server', function() {
 
     it('returns an error when ID is invalid', function *() {
       var res = yield client.get('polls/b42@/options');
-      assert.equal(res.statusCode, 400);
+      assert.equal(res.statusCode, 404);
       assert.isDefined(res.body.error);
     });
 
@@ -374,7 +374,7 @@ describe('Server', function() {
 
     it('returns an error when ID is invalid', function *() {
       var res = yield client.patch('polls/b42@', votes);
-      assert.equal(res.statusCode, 400);
+      assert.equal(res.statusCode, 404);
       assert.isDefined(res.body.error);
     });
 
@@ -539,7 +539,7 @@ describe('Server', function() {
 
     it('returns an error when ID is invalid', function *() {
       var res = yield client.post('polls/b42@/comments', comment);
-      assert.equal(res.statusCode, 400);
+      assert.equal(res.statusCode, 404);
       assert.isDefined(res.body.error);
     });
 

@@ -43,18 +43,21 @@ function handleErrors(handler) {
     co(handler)(req, res, function(err, _) {
       if (err) {
         if (err instanceof NotFoundError) {
-          res.status(404);
-          if (req.accepts('html', 'json') == 'html') {
-            res.render('404');
-          } else {
-            res.send({ error: 'Not found.' });
-          }
+          code = 404;
+          error = 'Not found.';
         } else if (err instanceof BadRequestError) {
-          res.status(400);
-          res.send({ error: err.message });
-        } else if (err) {
-          res.status(500);
-          res.send({ error: 'Unexpected error.' });
+          code = 400;
+          error = err.message;
+        } else {
+          code = 500;
+          error = 'Unexpected error.';
+        }
+
+        res.status(code);
+        if (req.accepts('html', 'json') == 'html') {
+          res.render(code.toString());
+        } else {
+          res.send({ error: error });
         }
       }
     });
