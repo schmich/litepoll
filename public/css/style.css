@@ -277,7 +277,7 @@ input[type="checkbox"] {
   box-shadow: 0px 0px 6px #ddd;
 }
 .action:focus {
-  outline: 1px solid #0084f2;
+  outline: 0;
 }
 .action:disabled {
   background: #aaa;
