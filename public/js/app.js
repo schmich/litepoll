@@ -377,7 +377,7 @@ function elapsedTimeFormat(start, end) {
   var elapsedMs = end - start;
   var elapsedMins = Math.floor(elapsedMs / (60 * 1000));
 
-  if (elapsedMins == 0) {
+  if (elapsedMins <= 0) {
     return 'Just now';
   }
 
@@ -387,11 +387,11 @@ function elapsedTimeFormat(start, end) {
 
   var elapsedHours = Math.floor(elapsedMins / 60);
   if (elapsedHours < 24) {
-    return elapsedMins + 'h ago';
+    return elapsedHours + 'h ago';
   }
 
   var elapsedDays = Math.floor(elapsedHours / 24);
-  return elapsedMins + 'd ago';
+  return elapsedDays + 'd ago';
 }
 
 app.directive('timeSince', function() {
