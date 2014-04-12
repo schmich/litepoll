@@ -1,6 +1,6 @@
 <% extend 'layouts/main.ect' %>
 <div ng-controller="PollResultCtrl" data-poll-id="<%= @id %>">
-  <div class="results">
+  <div class="results" ng-if="poll">
     <div class="title">{{poll.title}}</div>
     <div class="subtitle">
       <div class="votes">{{totalVotes | plural:'vote' | titleCase}}</div>

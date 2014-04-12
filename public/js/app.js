@@ -373,8 +373,8 @@ app.directive('stopEvent', function() {
   };
 });
 
-function elapsedTimeFormat(timestamp) {
-  var elapsedMs = Date.now() - timestamp;
+function elapsedTimeFormat(start, end) {
+  var elapsedMs = end - start;
   var elapsedMins = Math.floor(elapsedMs / (60 * 1000));
 
   if (elapsedMins == 0) {
@@ -382,30 +382,43 @@ function elapsedTimeFormat(timestamp) {
   }
 
   if (elapsedMins < 60) {
-    return plural(elapsedMins, 'minute') + ' ago';
+    return elapsedMins + 'm ago';
   }
 
-  var elapsedHours = Math.floor(elapsedMin / 60);
+  var elapsedHours = Math.floor(elapsedMins / 60);
   if (elapsedHours < 24) {
-    return plural(elapsedHours, 'hour') + ' ago';
+    return elapsedMins + 'h ago';
   }
 
   var elapsedDays = Math.floor(elapsedHours / 24);
-  return plural(elapsedDays, 'day') + ' ago';
+  return elapsedMins + 'd ago';
 }
 
 app.directive('timeSince', function() {
+  var updates = [];
+  var intervalSet = false;
+
   return {
     restrict: 'A',
     link: function (scope, elem, attr) {
       var timestamp = scope.$eval(attr.timeSince);
-      elem.text(elapsedTimeFormat(timestamp));
+      elem.text(elapsedTimeFormat(timestamp, Date.now()));
 
-      setInterval(function() {
-        scope.$apply(function() {
-          elem.text(elapsedTimeFormat(timestamp));
-        });
-      }, 60 * 1000);
+      updates.push({ elem: elem, timestamp: timestamp });
+
+      if (!intervalSet) {
+        intervalSet = true;
+
+        setInterval(function () {
+          scope.$apply(function () {
+            var now = Date.now();
+            for (var i = 0; i < updates.length; ++i) {
+              var content = elapsedTimeFormat(updates[i].timestamp, now);
+              updates[i].elem.text(content);
+            }
+          });
+        }, 60 * 1000);
+      }
     }
   };
 });
