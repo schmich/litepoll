@@ -202,10 +202,6 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
   $scope.options = [];
   $scope.totalVotes = null;
 
-  $scope.showComments = function() {
-    document.getElementById('comment').focus();
-  };
-
   $scope.$watch('poll.votes', function(votes) {
     if (votes == null) {
       return;

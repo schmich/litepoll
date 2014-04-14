@@ -5,7 +5,7 @@
     <div class="subtitle">
       <div class="votes">{{totalVotes | plural:'vote' | titleCase}}</div>
       &middot;
-      <a href="#comments" ng-click="showComments()">{{poll.comments.length | plural:'comment' | titleCase}}</a>
+      <a href="#comments">{{poll.comments.length | plural:'comment' | titleCase}}</a>
     </div>
     <ol>
       <li class="option" ng-repeat="option in options | orderBy:'-votes' track by $index">
@@ -19,10 +19,9 @@
       </li>
     </ol>
     <div class="comments-area">
-      <a name="comments"></a>
-      <div class="title">Comments</div>
+      <div class="title" id="comments">Comments</div>
       <form ng-controller="PollCommentCtrl" ng-submit="addComment($event)">
-        <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Comment on this poll" />
+        <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Add a comment" />
       </form>
       <ul class="comments">
         <li class="comment" ng-repeat="comment in poll.comments | orderBy:'-time' track by $index">
