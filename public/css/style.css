@@ -66,9 +66,9 @@ input[type="radio"] + label, .results .option {
   padding: 9px 10px;
 }
 .container {
-  -webkit-box-shadow: 0px 0px 50px #333;
-  -moz-box-shadow: 0px 0px 50px #333;
-  box-shadow: 0px 0px 50px #333;
+  -webkit-box-shadow: 0px 0px 50px #222;
+  -moz-box-shadow: 0px 0px 50px #222;
+  box-shadow: 0px 0px 50px #222;
   min-height: 100%;
   max-width: 900px;
   margin: 0 auto;
