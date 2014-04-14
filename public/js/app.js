@@ -289,6 +289,12 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
         alert(res.error);
       });
   };
+
+  $scope.upvote = function () {
+  };
+
+  $scope.downvote = function () {
+  };
 });
 
 function plural(count, word) {

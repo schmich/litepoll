@@ -24,8 +24,15 @@
         <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Add a comment" />
         <ul class="comments">
           <li class="comment" ng-repeat="comment in poll.comments | orderBy:'-time'">
-            {{comment.text}}
-            <span class="time" time-since="comment.time"></span>
+            <div class="votes">
+              <i ng-click="upvote()" class="icon up"></i>
+              <p>0</p>
+              <i ng-click="downvote()" class="icon down"></i>
+            </div>
+            <div class="text-time">
+              <span class="text">{{comment.text}}</span>
+              <span class="time" time-since="comment.time"></span>
+            </div>
           </li>
         </ul>
       </form>
