@@ -390,7 +390,7 @@ function elapsedTimeFormat(start, end) {
   return elapsedDays + 'd ago';
 }
 
-app.directive('timeSince', function() {
+app.directive('timeSince', function ($interval) {
   var updates = [];
   var intervalSet = false;
 
@@ -405,14 +405,12 @@ app.directive('timeSince', function() {
       if (!intervalSet) {
         intervalSet = true;
 
-        setInterval(function () {
-          scope.$apply(function () {
-            var now = Date.now();
-            for (var i = 0; i < updates.length; ++i) {
-              var content = elapsedTimeFormat(updates[i].timestamp, now);
-              updates[i].elem.text(content);
-            }
-          });
+        $interval(function () {
+          var now = Date.now();
+          for (var i = 0; i < updates.length; ++i) {
+            var content = elapsedTimeFormat(updates[i].timestamp, now);
+            updates[i].elem.text(content);
+          }
         }, 60 * 1000);
       }
     }

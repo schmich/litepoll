@@ -22,13 +22,13 @@
       <div class="title" id="comments">Comments</div>
       <form ng-controller="PollCommentCtrl" ng-submit="addComment($event)">
         <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Add a comment" />
+        <ul class="comments">
+          <li class="comment" ng-repeat="comment in poll.comments | orderBy:'-time'">
+            {{comment.text}}
+            <span class="time" time-since="comment.time"></span>
+          </li>
+        </ul>
       </form>
-      <ul class="comments">
-        <li class="comment" ng-repeat="comment in poll.comments | orderBy:'-time' track by $index">
-          {{comment.text}}
-          <span class="time" time-since="comment.time"></span>
-        </li>
-      </ul>
     </div>
   </div>
 </div>
