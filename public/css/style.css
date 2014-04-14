@@ -1,34 +1,3 @@
-@font-face {
-  font-family: 'FontAwesome';
-  src: url('//netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.eot?v=4.0.3');
-  src: url('//netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('//netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('//netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('//netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-.fa {
-  display: inline-block;
-  font-family: FontAwesome;
-  font-style: normal;
-  font-weight: normal;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-.fa-copy:before {
-  content: "\f0c1";
-}
-.fa-preload {
-  position: absolute;
-  top: -100px;
-  left: -100px;
-  width: 0;
-  height: 0;
-  line-height: 0;
-  font-size: 0;
-}
-.fa-preload:before {
-  content: "\f0c1";
-}
 html, body, form, ol, ul, li, h1, h2, h3, h4 {
   margin: 0;
   padding: 0;
@@ -64,6 +33,51 @@ input[type="text"] {
 }
 input[type="radio"] + label, .results .option {
   padding: 9px 10px;
+}
+@font-face {
+  font-family: 'fontello';
+  src: url('../font/fontello.eot?86840473');
+  src: url('../font/fontello.eot?86840473#iefix') format('embedded-opentype'),
+       url('../font/fontello.woff?86840473') format('woff'),
+       url('../font/fontello.ttf?86840473') format('truetype'),
+       url('../font/fontello.svg?86840473#fontello') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.icon:before {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.icon-link:before { content: '\e806'; }
+.icon-check:before { content: '\e800'; }
+.icon-check-empty:before { content: '\e801'; }
+.icon-circle:before { content: '\e803'; }
+.icon-circle-empty:before { content: '\e802'; }
+.icon-sort-down:before { content: '\e804'; }
+.icon-sort-up:before { content: '\e805'; }
+.icon-preload {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 0;
+  height: 0;
+  line-height: 0;
+  font-size: 0;
+}
+.icon-preload:before {
+  content: '\e802';
 }
 .container {
   -webkit-box-shadow: 0px 0px 50px #222;
@@ -124,11 +138,11 @@ input[type="radio"] + label {
   cursor: pointer;
   display: block;
 }
-input[type="radio"] + label .fa {
+input[type="radio"] + label .icon {
   color: #ccc;
   margin-right: 5px;
 }
-input[type="radio"]:not(:disabled) + label:hover .fa {
+input[type="radio"]:not(:disabled) + label:hover .icon {
   color: #4af;
 }
 input[type="radio"]:not(:disabled) + label:hover {
@@ -140,22 +154,28 @@ input[type="radio"]:disabled + label:hover {
 input[type="radio"]:disabled + label {
   color: #aaa;
 }
-input[type="radio"] + label .fa:before {
-  content: "\f10c";
+input[type="radio"] + label .icon:before {
+  content: '\e802';
   margin-right: 3px;
 }
-input[type="radio"]:checked + label .fa:before {
+input[type="radio"]:checked + label .icon:before {
   color: #4af;
-  content: "\f111";
+  content: '\e803';
 }
 input[type="radio"]:checked + label {
   color: #4af;
 }
 input[type="checkbox"] {
   display: none;
+  vertical-align: bottom;
+  position: relative;
+  top: -10px;
+  padding: 0;
+  margin: 0;
+  margin-right: 15px;
 }
 input[type="checkbox"] + label {
-  padding: 9px 10px;
+  padding: 9px 0px;
   display: block;
   cursor: pointer;
 }
@@ -165,32 +185,25 @@ input[type="checkbox"]:disabled + label:hover {
 input[type="checkbox"]:disabled + label {
   color: #aaa;
 }
-input[type="checkbox"] + label .fa:before {
+input[type="checkbox"] + label .icon:before {
   color: #ccc;
-  content: "\f096";
+  content: '\e801';
   margin-right: 8px;
 }
 input[type="checkbox"]:not(:disabled) + label:hover {
   color: #4af;
 }
-input[type="checkbox"]:not(:disabled) + label:hover .fa:before {
+input[type="checkbox"]:not(:disabled) + label:hover .icon:before {
   color: #4af;
 }
 input[type="checkbox"]:checked + label {
   color: #4af;
 }
-input[type="checkbox"]:checked + label .fa:before {
-  content: "\f046";
-  color: #4af;
-  margin-right: 4px;
-}
-input[type="checkbox"] {
-  vertical-align: bottom;
+input[type="checkbox"]:checked + label .icon:before {
+  content: '\e800';
   position: relative;
-  top: -10px;
-  padding: 0;
-  margin: 0;
-  margin-right: 15px;
+  left: 2px;
+  color: #4af;
 }
 #create-poll #title {
   margin: 0 10px 10px 0;
@@ -386,8 +399,8 @@ input[type="checkbox"] {
 #copy-link {
   cursor: pointer;
 }
-#copy-link .fa {
-  margin-right: 5px;
+#copy-link .icon {
+  margin-right: 0px;
 }
 #copy-link.zeroclipboard-is-hover {
   color: #222;
@@ -412,7 +425,7 @@ input[type="checkbox"] {
   font-size: 22px;
   color: #333;
   padding: 0;
-  margin: 0 0 30px 47px;
+  margin: 0 0 30px 45px;
   line-height: 150%;
 }
 @media
