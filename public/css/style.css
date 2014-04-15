@@ -284,7 +284,7 @@ input[type="checkbox"]:checked + label .icon:before {
   top: 4px;
 }
 .comment .votes .down {
-  top: -5px;
+  top: -6px;
 }
 .comment .votes .up:before {
   content: '\e80c';
