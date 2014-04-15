@@ -19,7 +19,7 @@ function redisCachePollOptions(poll) {
   var cache = {
     title: poll.title,
     options: poll.opts,
-    choices: poll.choices
+    maxVotes: poll.maxVotes
   };
 
   var key = 'q:' + poll._id;
@@ -90,18 +90,18 @@ exports.create = function *(req, res) {
     err("A value for 'strict' is required.");
   }
 
-  var choices = req.body.choices;
-  if (choices === undefined) {
-    err("A value for 'choices' is required.");
+  var maxVotes = req.body.maxVotes;
+  if (maxVotes === undefined) {
+    err("A value for 'maxVotes' is required.");
   }
 
-  var choices = parseInt(choices);
-  if (isNaN(choices) || !isFinite(choices)) {
-    err("Integer 'choices' is required.");
+  maxVotes = parseInt(maxVotes);
+  if (isNaN(maxVotes) || !isFinite(maxVotes)) {
+    err("Integer 'maxVotes' is required.");
   }
 
-  if (choices < 1 || choices > options.length) {
-    err("'choices' must be between 1 and the number of options.");
+  if (maxVotes < 1 || maxVotes > options.length) {
+    err("'maxVotes' must be between 1 and the number of options.");
   }
 
   var key = null;
@@ -117,7 +117,7 @@ exports.create = function *(req, res) {
     creator: ip.toBuffer(req.ip),
     comments: [],
     key: key,
-    choices: choices,
+    maxVotes: maxVotes,
     time: Date.now()
   });
   
@@ -164,8 +164,8 @@ exports.vote = function *(req, res) {
   var cache = yield redis.get('q:' + id);
   var poll = cache ? JSON.parse(cache) : yield Poll.find(id);
 
-  if (votes.length > poll.choices) {
-    err("'votes' count cannot exceed max poll choices.");
+  if (votes.length > poll.maxVotes) {
+    err("'votes' count cannot exceed max poll vote count.");
   }
 
   for (var i = 0; i < votes.length; ++i) {
@@ -207,7 +207,7 @@ exports.options = function *(req, res) {
     res.send({
       title: poll.title,
       options: poll.opts,
-      choices: poll.choices
+      maxVotes: poll.maxVotes
     });
 
     redisCachePollOptions(poll);
@@ -231,7 +231,7 @@ exports.show = function *(req, res) {
     options: poll.opts,
     votes: poll.votes,
     comments: comments,
-    choices: poll.choices
+    maxVotes: poll.maxVotes
   });
 };
 

@@ -76,7 +76,7 @@ describe('Poll', function() {
     strict: true,
     creator: '127.0.0.1',
     secret: false,
-    choices: 1,
+    maxVotes: 1,
     time: Date.now()
   };
 
@@ -110,7 +110,7 @@ describe('Server', function() {
       options: ['Red', 'Green', 'Blue'],
       strict: true,
       secret: false,
-      choices: 1
+      maxVotes: 1
     };
   });
 
@@ -212,43 +212,43 @@ describe('Server', function() {
       assert(res.headers.location.indexOf(':') >= 1);
     });
 
-    it('requires a choices value', function *() {
-      delete poll.choices;
+    it('requires a maxVotes value', function *() {
+      delete poll.maxVotes;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
 
-    it('requires an integer choices', function *() {
-      poll.choices = 'foo';
+    it('requires an integer maxVotes', function *() {
+      poll.maxVotes = 'foo';
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
 
-    it('requires choices >= 1', function *() {
-      poll.choices = 0;
+    it('requires maxVotes >= 1', function *() {
+      poll.maxVotes = 0;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
 
-    it('requires choices <= options.length', function *() {
-      poll.choices = poll.options.length + 1;
+    it('requires maxVotes <= options.length', function *() {
+      poll.maxVotes = poll.options.length + 1;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
     });
 
-    it('successfully creates a poll with max choices', function *() {
-      poll.choices = poll.options.length;
+    it('successfully creates a poll with max vote count', function *() {
+      poll.maxVotes = poll.options.length;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
       res = yield client.get(location);
       assert.equal(res.statusCode, 200);
       var newPoll = res.body;
-      assert.equal(newPoll.choices, poll.choices);
+      assert.equal(newPoll.maxVotes, poll.maxVotes);
     });
   });
 
@@ -498,7 +498,7 @@ describe('Server', function() {
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when vote count exceeds max choices', function *() {
+    it('returns an error when vote count exceeds max vote count', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
@@ -508,7 +508,7 @@ describe('Server', function() {
     });
 
     it('successfully increments the vote count with multiple choices', function *() {
-      poll.choices = poll.options.length;
+      poll.maxVotes = poll.options.length;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;

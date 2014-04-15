@@ -2,7 +2,7 @@
 <form name="form" id="vote-poll" ng-controller="PollVoteCtrl" ng-submit="submitVotes()" data-poll-id="<%= @id %>">
   <h1 class="title">{{poll.title}}</h1>
   <ol class="options">
-    <li class="option" ng-switch on="poll.choices" ng-repeat="option in poll.options track by $index">
+    <li class="option" ng-switch on="poll.maxVotes" ng-repeat="option in poll.options track by $index">
       <input type="radio"
         ng-switch-when="1"
         id="options-{{$index}}"

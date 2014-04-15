@@ -92,7 +92,7 @@ app.controller('PollCreateCtrl', function($scope, $http) {
       }
     }
 
-    poll.choices = poll.multi ? poll.options.length : 1;
+    poll.maxVotes = poll.multi ? poll.options.length : 1;
     delete poll.multi;
 
     return poll;
