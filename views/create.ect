@@ -41,6 +41,8 @@
     <p>Hide your poll. Anyone with the poll URL will be able to see it. You should not consider your poll to be secure.</p>
     <input type="checkbox" id="lax" ng-model="poll.lax"><label for="lax"><i class="icon"></i> Skip IP checking</label>
     <p>Allow multiple votes from the same IP. Enable if you expect voting from schools, businesses, or other institutions sharing a network connection.</p>
+    <input type="checkbox" id="allowComments" ng-model="poll.allowComments"><label for="allowComments"><i class="icon"></i> Allow comments</label>
+    <p>Allow users to comment on the poll after voting.</p>
     <center>
       <div class="actions">
         <a href="" ng-click="toggleAdvanced()">&laquo; Go Back</a>

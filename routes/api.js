@@ -55,6 +55,11 @@ exports.create = function *(req, res) {
     err("'title' length must not exceed 140 characters.")
   }
 
+  var allowComments = req.body.allowComments;
+  if (allowComments === undefined) {
+    err("A value for 'allowComments' is required.");
+  }
+
   var secret = req.body.secret;
   if (secret === undefined) {
     err("A value for 'secret' is required.");
@@ -116,6 +121,7 @@ exports.create = function *(req, res) {
     strict: strict ? true : false,
     creator: ip.toBuffer(req.ip),
     comments: [],
+    allowComments: allowComments ? true : false,
     key: key,
     maxVotes: maxVotes,
     time: Date.now()
@@ -231,6 +237,7 @@ exports.show = function *(req, res) {
     options: poll.opts,
     votes: poll.votes,
     comments: comments,
+    allowComments: poll.allowComments,
     maxVotes: poll.maxVotes
   });
 };

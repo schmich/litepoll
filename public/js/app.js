@@ -23,7 +23,8 @@ app.controller('PollCreateCtrl', function($scope, $http) {
     options: ['', '', '', ''],
     lax: false,
     secret: false,
-    multi: false
+    multi: false,
+    allowComments: true
   };
 
   $scope.showAdvanced = (window.location.hash == '#advanced');

@@ -77,7 +77,9 @@ describe('Poll', function() {
     creator: '127.0.0.1',
     secret: false,
     maxVotes: 1,
-    time: Date.now()
+    time: Date.now(),
+    comments: [],
+    allowComments: true 
   };
 
   describe('#create', function() {
@@ -110,7 +112,8 @@ describe('Server', function() {
       options: ['Red', 'Green', 'Blue'],
       strict: true,
       secret: false,
-      maxVotes: 1
+      maxVotes: 1,
+      allowComments: true
     };
   });
 
@@ -134,6 +137,13 @@ describe('Server', function() {
       for (var i = 0; i < 140; ++i)
         poll.title += 'x';
 
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('requires an allowComments value', function *() {
+      delete poll.allowComments;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
@@ -642,6 +652,18 @@ describe('Server', function() {
       assert.equal(parts.length, 2);
       res = yield client.post(parts[0] + ':x/comments', comment);
       assert.equal(res.statusCode, 404);
+    });
+
+    it('returns an error when commenting is not allowed', function *() {
+      poll.allowComments = false;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var location = res.headers.location;
+      res = yield client.post(location + '/comments', { comment: 'Foo' });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+      res = yield client.get(location);
+      assert.equal(res.body.allowComments, false);
     });
   });
 });
