@@ -21,7 +21,7 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   $scope.poll = {
     title: '',
     options: ['', '', '', ''],
-    lax: false,
+    strict: true,
     secret: false,
     multi: false,
     allowComments: true
@@ -83,8 +83,6 @@ app.controller('PollCreateCtrl', function($scope, $http) {
   function pollFromForm(poll) {
     var poll = angular.copy($scope.poll);
     poll.options = [];
-    poll.strict = !poll.lax;
-    delete poll.lax;
 
     for (var i = 0; i < $scope.poll.options.length; ++i) {
       var option = $scope.poll.options[i];
