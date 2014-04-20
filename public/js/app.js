@@ -345,7 +345,7 @@ app.factory('localStorageService', function() {
     }
   }
 
-  if (supported) {
+  if (supported()) {
     return {
       set: function(key, value) {
         localStorage.setItem(key, value);
