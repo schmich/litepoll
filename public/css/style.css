@@ -457,13 +457,13 @@ input[type="checkbox"]:checked + label .icon:before {
 .translate h1 {
   font-size: 28px;
 }
-.not-found {
+.error {
   text-align: center;
 }
-.not-found h1 {
+.error h1 {
   margin: 40px 0 80px 0;
 }
-.not-found .action {
+.error .action {
   margin-bottom: 20px;
 }
 #advanced-poll-options p {
