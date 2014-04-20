@@ -251,7 +251,6 @@ input[type="checkbox"]:checked + label .icon:before {
 }
 .comment {
   margin-left: 15px;
-  margin-bottom: 15px;
   list-style-type: none;
 }
 .comment .time {
@@ -266,17 +265,18 @@ input[type="checkbox"]:checked + label .icon:before {
 }
 .comment .votes p {
   padding: 0;
-  margin: 0;
   font-size: 20px;
+  margin: 0 auto;
   text-align: center;
-  width: 30px;
+  color: #333;
 }
 .comment .votes .up, .comment .votes .down {
-  width: 30px;
+  width: 45px;
   display: block;
   color: #bbb;
   font-size: 22px;
   text-align: center;
+  margin: 0 auto;
   position: relative;
   left: 1px;
 }
@@ -292,13 +292,21 @@ input[type="checkbox"]:checked + label .icon:before {
 .comment .votes .down:before {
   content: '\e80b';
 }
-.comment .votes .up:hover {
+.comment:not(.voted) .votes .up:hover {
   color: #2f6;
   cursor: pointer;
 }
-.comment .votes .down:hover {
+.comment:not(.voted) .votes .down:hover {
   color: #f48;
   cursor: pointer;
+}
+.comment .votes .up.chosen {
+  color: #2f6;
+  text-shadow: 0px 0px 2px #2f6;
+}
+.comment .votes .down.chosen {
+  color: #f48;
+  text-shadow: 0px 0px 2px #f48;
 }
 .comment .text-time {
   display: inline-block;

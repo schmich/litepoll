@@ -25,11 +25,11 @@
       <form ng-controller="PollCommentCtrl" ng-submit="addComment($event)">
         <input type="text" ng-show="!hasCommented" ng-model="comment" id="comment" maxlength="140" placeholder="Add a comment" />
         <ul class="comments">
-          <li class="comment" ng-repeat="comment in poll.comments | orderBy:'-time'">
+          <li ng-repeat="comment in poll.comments | orderBy:'-time'" ng-class="{ comment: true, voted: commentVotes[comment.index] !== undefined }">
             <div class="votes">
-              <i ng-click="upvote()" class="icon up"></i>
-              <p>0</p>
-              <i ng-click="downvote()" class="icon down"></i>
+              <i ng-click="vote(comment, true)" ng-class="{ icon: true, up: true, chosen: commentVotes[comment.index] === true }"></i>
+              <p>{{comment.votes | formatVotes}}</p>
+              <i ng-click="vote(comment, false)" ng-class="{ icon: true, down: true, chosen: commentVotes[comment.index] === false }"></i>
             </div>
             <div class="text-time">
               <span class="text">{{comment.text}}</span>

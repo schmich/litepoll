@@ -131,8 +131,8 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
         localStorageService.set(votesKey, $scope.votes);
         window.location.pathname = res.path.web;
       })
-      .error(function(data) {
-        alert(data.error);
+      .error(function(res) {
+        alert(res.error);
       });
   };
 
@@ -228,6 +228,16 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
     
   var client = new ServerEvents('/polls/' + pollId + '/events');
 
+  client.on('vote', function(votes) {
+    if (!$scope.poll) {
+      return;
+    }
+
+    $scope.$apply(function() {
+      $scope.poll.votes = votes;
+    });
+  });
+
   client.on('comment', function(comment) {
     if (!$scope.poll) {
       return;
@@ -238,13 +248,13 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
     });
   });
 
-  client.on('vote', function(votes) {
+  client.on('comment:vote', function(vote) {
     if (!$scope.poll) {
       return;
     }
 
     $scope.$apply(function() {
-      $scope.poll.votes = votes;
+      $scope.poll.comments[vote.index].votes = vote.votes;
     });
   });
 
@@ -264,7 +274,9 @@ app.controller('PollResultCtrl', function($scope, $http, $element) {
 
 app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
   var commentKey = null;
+  var commentVoteKey = null;
   $scope.hasCommented = false;
+  $scope.commentVotes = { };
 
   $scope.$watch('poll', function(poll) {
     if (!poll) {
@@ -272,7 +284,9 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
     }
 
     commentKey = 'comment:' + poll.id;
+    commentVoteKey = 'comment:' + poll.id + ':votes';
     $scope.hasCommented = localStorageService.get(commentKey);
+    $scope.commentVotes = localStorageService.get(commentVoteKey) || { };
   });
 
   $scope.addComment = function() {
@@ -289,10 +303,20 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
       });
   };
 
-  $scope.upvote = function () {
-  };
+  $scope.vote = function (comment, upvote) {
+    if ($scope.commentVotes[comment.index] !== undefined) {
+      return;
+    }
 
-  $scope.downvote = function () {
+    var url = '/polls/' + $scope.poll.id + '/comments/' + comment.index;
+    $http({ method: 'PATCH', url: url, data: { upvote: upvote } })
+      .success(function (res) {
+        $scope.commentVotes[comment.index] = upvote;
+        localStorageService.set(commentVoteKey, $scope.commentVotes);
+      })
+      .error(function (res) {
+        alert(res.error);
+      });
   };
 });
 
@@ -324,10 +348,28 @@ app.filter('percent', function() {
 
 app.filter('titleCase', function() {
   return function(input) {
-    if (!input)
+    if (!input) {
       return input;
+    }
 
     return input[0].toUpperCase() + input.substr(1);
+  };
+});
+
+app.filter('formatVotes', function() {
+  return function(votes) {
+    if (!votes) {
+      return votes;
+    }
+
+    var prefix = votes > 0 ? '+' : '';
+    if (votes >= 1000000) {
+      return prefix + (votes / 1000000).toFixed(0) + 'M';
+    } else if (votes >= 1000) {
+      return prefix + (votes / 1000).toFixed(0) + 'K';
+    } else {
+      return prefix + votes;
+    }
   };
 });
 
@@ -346,10 +388,12 @@ app.factory('localStorageService', function() {
   if (supported()) {
     return {
       set: function(key, value) {
-        localStorage.setItem(key, value);
+        var storedValue = JSON.stringify(value);
+        localStorage.setItem(key, storedValue);
       },
       get: function(key) {
-        return localStorage.getItem(key);
+        var storedValue = localStorage.getItem(key);
+        return JSON.parse(storedValue);
       }
     }
   } else {

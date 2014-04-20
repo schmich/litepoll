@@ -71,6 +71,7 @@ app.get('/polls/:id/options', handleErrors(api.options));
 app.patch('/polls/:id', handleErrors(api.vote));
 app.post('/polls/:id/comments', handleErrors(api.comment));
 app.get('/polls/:id/events', handleErrors(api.events));
+app.patch('/polls/:pollId/comments/:commentIndex', handleErrors(api.voteComment));
 app.get('/', poll.create);
 app.get('/:id', handleErrors(poll.show));
 app.get('/:id/r', handleErrors(poll.results));

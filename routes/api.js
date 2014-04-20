@@ -227,8 +227,14 @@ exports.show = function *(req, res) {
 
   var poll = yield Poll.find(id);
 
+  var index = 0;
   var comments = _.map(poll.comments, function(c) {
-    return { text: c.text, time: c.time.getTime() }
+    return {
+      text: c.text,
+      time: c.time.getTime(),
+      votes: c.votes,
+      index: index++
+    };
   });
 
   res.send({
@@ -254,12 +260,47 @@ exports.comment = function *(req, res) {
     err("'comment' length must be between 1-140 characters.");
   }
 
-  var added = yield Poll.addComment(id, req.ip, comment);
-  if (added) {
-    res.send({});
-    sse.publish('polls:' + id, 'comment', { text: added.text, time: added.time });
+  var comment = yield Poll.addComment(id, comment, req.ip);
+  if (comment) {
+    res.set('Location', '/polls/' + id + '/comments/' + comment.index);
+    res.send(201, {});
+    sse.publish('polls:' + id, 'comment', {
+      index: comment.index,
+      text: comment.text,
+      time: comment.time,
+      votes: comment.votes
+    });
   } else {
     err("You have already commented on this poll.");
+  }
+};
+
+exports.voteComment = function *(req, res) {
+  var pollId = req.params.pollId;
+  var commentIndex = req.params.commentIndex;
+
+  commentIndex = parseInt(commentIndex);
+  if (isNaN(commentIndex) || !isFinite(commentIndex)) {
+    err("'commentIndex' must be an integer.");
+  }
+
+  if (commentIndex < 0) {
+    err("'commentIndex' must be in range.");
+  }
+
+  var upvote = req.body.upvote;
+  if (upvote === undefined) {
+    err("'upvote' is required.");
+  }
+
+  upvote = upvote ? true : false;
+
+  var votes = yield Poll.voteComment(pollId, commentIndex, upvote, req.ip);
+  if (votes !== null) {
+    res.send({});
+    sse.publish('polls:' + pollId, 'comment:vote', { index: commentIndex, votes: votes });
+  } else {
+    err("You have already voted on this comment.");
   }
 };
 

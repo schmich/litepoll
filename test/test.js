@@ -6,6 +6,7 @@ var settings = require('../lib/settings').configure({
 });
 var Promise = require('bluebird');
 var Poll = require('../lib/poll');
+var encoding = require('../lib/encoding');
 var assert = require('chai').assert;
 var url = require('url');
 var request = require('co-request');
@@ -23,26 +24,29 @@ server.listen(port, function() { });
 function Client(endpoint) {
   this.endpoint = endpoint;
 
-  this.get = function(path, json) {
+  this.get = function(path, json, headers) {
     return request({
       method: 'GET',
       json: true,
+      headers: headers,
       url: url.resolve(this.endpoint, path)
     });
   }
 
-  this.post = function(path, json) {
+  this.post = function(path, json, headers) {
     return request({
       method: 'POST',
       json: json,
+      headers: headers,
       url: url.resolve(this.endpoint, path)
     });
   }
 
-  this.patch = function(path, json) {
+  this.patch = function(path, json, headers) {
     return request({
       method: 'PATCH',
       json: json,
+      headers: headers,
       url: url.resolve(this.endpoint, path)
     });
   }
@@ -68,32 +72,32 @@ beforeEach(function *() {
   yield settings.redis.flushdb();
 });
 
-describe('Poll', function() {
-  var pollInfo = {
-    title: 'Best color?',
-    opts: ['Red', 'Green', 'Blue'],
-    votes: [0, 0, 0],
-    strict: true,
-    creator: '127.0.0.1',
-    secret: false,
-    maxVotes: 1,
-    time: Date.now(),
-    comments: [],
-    allowComments: true 
-  };
+var thePoll = {
+  title: 'Best color?',
+  opts: ['Red', 'Green', 'Blue'],
+  votes: [0, 0, 0],
+  strict: true,
+  creator: '127.0.0.1',
+  secret: false,
+  maxVotes: 1,
+  time: Date.now(),
+  comments: [],
+  allowComments: true 
+};
 
+describe('Poll', function() {
   describe('#create', function() {
     it('creates a poll', function *() {
-      var poll = yield Poll.create(pollInfo);
+      var poll = yield Poll.create(thePoll);
       assert.isNotNull(poll);
     });
   });
 
   describe('#addComment', function() {
     it('adds a comment', function *() {
-      var poll = yield Poll.create(pollInfo);
+      var poll = yield Poll.create(thePoll);
       assert.isNotNull(poll);
-      var added = yield Poll.addComment(poll._id, '1.1.1.1', 'Comment');
+      var added = yield Poll.addComment(poll._id, 'Comment', '1.1.1.1');
       assert(added);
       poll = yield Poll.find(poll._id);
       assert.isNotNull(poll.comments);
@@ -106,6 +110,7 @@ describe('Poll', function() {
 
 describe('Server', function() {
   var poll = null;
+  var comment = null;
   beforeEach(function() {
     poll = {
       title: 'Best color?',
@@ -115,6 +120,8 @@ describe('Server', function() {
       maxVotes: 1,
       allowComments: true
     };
+
+    comment = { comment: 'Hello, world!' };
   });
 
   describe('POST /polls', function() {
@@ -263,15 +270,14 @@ describe('Server', function() {
   });
 
   describe('GET /polls/:id', function() {
-    it('returns 404 when poll does not exist', function *() {
+    it('fails when poll does not exist', function *() {
       var res = yield client.get('polls/123456789');
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when ID is invalid', function *() {
+    it('fails when ID is invalid', function *() {
       var res = yield client.get('polls/b42@');
       assert.equal(res.statusCode, 404);
-      assert.isDefined(res.body.error);
     });
 
     it('returns the poll', function *() {
@@ -313,7 +319,7 @@ describe('Server', function() {
       }
     });
 
-    it('returns an error when key is incorrect', function *() {
+    it('fails when key is incorrect', function *() {
       poll.secret = true;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
@@ -326,15 +332,14 @@ describe('Server', function() {
   });
 
   describe('GET /polls/:id/options', function() {
-    it('returns 404 when poll does not exist', function *() {
+    it('fails when poll does not exist', function *() {
       var res = yield client.get('polls/123456789/options');
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when ID is invalid', function *() {
+    it('fails when ID is invalid', function *() {
       var res = yield client.get('polls/b42@/options');
       assert.equal(res.statusCode, 404);
-      assert.isDefined(res.body.error);
     });
 
     it('returns the poll options', function *() {
@@ -362,7 +367,7 @@ describe('Server', function() {
       assert.deepEqual(created.options, poll.options);
     });
 
-    it('returns an error when key is incorrect', function *() {
+    it('fails when key is incorrect', function *() {
       poll.secret = true;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
@@ -377,15 +382,14 @@ describe('Server', function() {
   describe('PATCH /polls/:id', function() {
     var votes = { votes: [0] };
 
-    it('returns 404 when poll does not exist', function *() {
+    it('fails when poll does not exist', function *() {
       var res = yield client.patch('polls/123456789', votes);
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when ID is invalid', function *() {
+    it('fails when ID is invalid', function *() {
       var res = yield client.patch('polls/b42@', votes);
       assert.equal(res.statusCode, 404);
-      assert.isDefined(res.body.error);
     });
 
     it('requires a votes value', function *() {
@@ -469,7 +473,7 @@ describe('Server', function() {
       assert.equal(votedPoll.votes[2], 0);
     });
 
-    it('returns an error when voting multiple times on a strict poll', function *() {
+    it('fails when voting multiple times on a strict poll', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
@@ -497,7 +501,7 @@ describe('Server', function() {
       assert.equal(votedPoll.votes[2], 0);
     });
 
-    it('returns an error when key is incorrect', function *() {
+    it('fails when key is incorrect', function *() {
       poll.secret = true;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
@@ -508,7 +512,7 @@ describe('Server', function() {
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when vote count exceeds max vote count', function *() {
+    it('fails when vote count exceeds max vote count', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
@@ -540,17 +544,14 @@ describe('Server', function() {
   });
 
   describe('POST /polls/:id/comment', function() {
-    var comment = { comment: 'Comment' };
-
-    it('returns 404 when poll does not exist', function *() {
+    it('fails when poll does not exist', function *() {
       var res = yield client.post('polls/123456789/comments', comment);
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when ID is invalid', function *() {
+    it('fails when ID is invalid', function *() {
       var res = yield client.post('polls/b42@/comments', comment);
       assert.equal(res.statusCode, 404);
-      assert.isDefined(res.body.error);
     });
 
     it('requires a comment', function *() {
@@ -589,7 +590,8 @@ describe('Server', function() {
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
       res = yield client.post(location + '/comments', comment);
-      assert.equal(res.statusCode, 200);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
       res = yield client.get(location);
       var newPoll = res.body;
       assert.isDefined(newPoll.comments);
@@ -604,7 +606,8 @@ describe('Server', function() {
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
       res = yield client.post(location + '/comments', comment);
-      assert.equal(res.statusCode, 200);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
       res = yield client.get(location);
       var newPoll = res.body;
       assert.isDefined(newPoll.comments);
@@ -613,12 +616,13 @@ describe('Server', function() {
       assert(newPoll.comments[0].time > 0);
     });
 
-    it('returns an error when commenting multiple times on a strict poll', function *() {
+    it('fails when commenting multiple times on a strict poll', function *() {
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
       res = yield client.post(location + '/comments', comment);
-      assert.equal(res.statusCode, 200);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
       res = yield client.post(location + '/comments', comment);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
@@ -630,9 +634,11 @@ describe('Server', function() {
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
       res = yield client.post(location + '/comments', { comment: 'Zero' });
-      assert.equal(res.statusCode, 200);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
       res = yield client.post(location + '/comments', { comment: 'One' });
-      assert.equal(res.statusCode, 200);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
       res = yield client.get(location);
       var newPoll = res.body;
       assert.isDefined(newPoll.comments);
@@ -643,7 +649,7 @@ describe('Server', function() {
       assert(newPoll.comments[1].time > 0);
     });
 
-    it('returns an error when key is incorrect', function *() {
+    it('fails when key is incorrect', function *() {
       poll.secret = true;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
@@ -654,16 +660,248 @@ describe('Server', function() {
       assert.equal(res.statusCode, 404);
     });
 
-    it('returns an error when commenting is not allowed', function *() {
+    it('fails when commenting is not allowed', function *() {
       poll.allowComments = false;
       var res = yield client.post('polls', poll);
       assert.equal(res.statusCode, 201);
       var location = res.headers.location;
-      res = yield client.post(location + '/comments', { comment: 'Foo' });
+      res = yield client.post(location + '/comments', comment);
       assert.equal(res.statusCode, 400);
       assert.isDefined(res.body.error);
       res = yield client.get(location);
       assert.equal(res.body.allowComments, false);
+    });
+
+    // Test for private poll + comments disabled.
+  });
+
+  describe('PATCH /polls/:id/comment/:index', function() {
+    it('fails when poll does not exist', function *() {
+      var res = yield client.patch('polls/123456789/comments/0', { upvote: true });
+      assert.equal(res.statusCode, 404);
+    });
+
+    it('fails when ID is invalid', function *() {
+      var res = yield client.patch('polls/b42@/comments/0', { upvote: true });
+      assert.equal(res.statusCode, 404);
+    });
+
+    it('fails with a non-numeric index', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      res = yield client.patch(pollPath + '/comments/a', { upvote: true });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    }); 
+
+    it('fails with a negative index', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      res = yield client.patch(pollPath + '/comments/-1', { upvote: true });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    }); 
+
+    it('fails with an out-of-bounds index', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      res = yield client.patch(pollPath + '/comments/1', { upvote: true });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    }); 
+
+    it('fails without the upvote field', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.patch(commentPath, { });
+    }); 
+
+    it('fails to upvote a comment multiple times on a strict poll', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      res = yield client.patch(commentPath, { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 1);
+      res = yield client.patch(commentPath, { upvote: true });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('fails to upvote a comment on a poll that does not allow comments', function *() {
+      poll.allowComments = false;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.patch(pollPath + '/comments/0', { upvote: true });
+      assert.equal(res.statusCode, 400);
+      assert.isDefined(res.body.error);
+    });
+
+    it('successfully upvotes a comment', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      res = yield client.patch(commentPath, { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 1);
+    });
+
+    it('successfully downvotes a comment', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      res = yield client.patch(commentPath, { upvote: false });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, -1);
+    });
+
+    it('successfully upvotes a comment multiple times on a non-strict poll', function *() {
+      poll.strict = false;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      res = yield client.patch(commentPath, { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 1);
+      res = yield client.patch(commentPath, { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 2);
+    });
+
+    it('successfully upvotes a comment on a secret poll', function *() {
+      poll.secret = true;
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      res = yield client.patch(commentPath, { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 1);
+    });
+
+    it('successfully upvotes multiple comments', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment, { 'X-Forwarded-For': '1.1.1.1' });
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPathA = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment, { 'X-Forwarded-For': '1.1.1.2' });
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPathB = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      assert.equal(newPoll.comments[1].votes, 0);
+      res = yield client.patch(pollPath + '/comments/0', { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.patch(pollPath + '/comments/1', { upvote: true });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 1);
+      assert.equal(newPoll.comments[1].votes, 1);
+    });
+
+    it('successfully upvotes a comment from multiple sources', function *() {
+      var res = yield client.post('polls', poll);
+      assert.equal(res.statusCode, 201);
+      var pollPath = res.headers.location;
+      res = yield client.post(pollPath + '/comments', comment);
+      assert.equal(res.statusCode, 201);
+      assert.isDefined(res.headers.location);
+      var commentPath = res.headers.location;
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      var newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 0);
+      res = yield client.patch(pollPath + '/comments/0', { upvote: true }, { 'X-Forwarded-For': '1.1.1.1' });
+      assert.equal(res.statusCode, 200);
+      res = yield client.patch(pollPath + '/comments/0', { upvote: true }, { 'X-Forwarded-For': '1.1.1.2' });
+      assert.equal(res.statusCode, 200);
+      res = yield client.get(pollPath);
+      assert.equal(res.statusCode, 200);
+      newPoll = res.body;
+      assert.equal(newPoll.comments[0].votes, 2);
     });
   });
 });
