@@ -303,18 +303,18 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
       });
   };
 
-  $scope.vote = function (comment, upvote) {
+  $scope.vote = function(comment, upvote) {
     if ($scope.commentVotes[comment.index] !== undefined) {
       return;
     }
 
     var url = '/polls/' + $scope.poll.id + '/comments/' + comment.index;
     $http({ method: 'PATCH', url: url, data: { upvote: upvote } })
-      .success(function (res) {
+      .success(function(res) {
         $scope.commentVotes[comment.index] = upvote;
         localStorageService.set(commentVoteKey, $scope.commentVotes);
       })
-      .error(function (res) {
+      .error(function(res) {
         alert(res.error);
       });
   };
@@ -409,8 +409,8 @@ app.factory('localStorageService', function() {
 app.directive('stopEvent', function() {
   return {
     restrict: 'A',
-    link: function (scope, element, attr) {
-      element.bind(attr.stopEvent, function (e) {
+    link: function(scope, element, attr) {
+      element.bind(attr.stopEvent, function(e) {
         e.stopPropagation();
         e.preventDefault();
       });
@@ -439,13 +439,13 @@ function elapsedTimeFormat(start, end) {
   return elapsedDays + 'd ago';
 }
 
-app.directive('timeSince', function ($interval) {
+app.directive('timeSince', function($interval) {
   var updates = [];
   var intervalSet = false;
 
   return {
     restrict: 'A',
-    link: function (scope, elem, attr) {
+    link: function(scope, elem, attr) {
       var timestamp = scope.$eval(attr.timeSince);
       elem.text(elapsedTimeFormat(timestamp, Date.now()));
 
@@ -454,7 +454,7 @@ app.directive('timeSince', function ($interval) {
       if (!intervalSet) {
         intervalSet = true;
 
-        $interval(function () {
+        $interval(function() {
           var now = Date.now();
           for (var i = 0; i < updates.length; ++i) {
             var content = elapsedTimeFormat(updates[i].timestamp, now);
