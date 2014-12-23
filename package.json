@@ -34,6 +34,6 @@
     "mongodb": "^2.0.9",
     "co-mocha": "^1.1.0",
     "co-request": "^0.2.0",
-    "colors": "^0.6.2"
+    "colors": "^1.0.3"
   }
 }
