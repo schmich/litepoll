@@ -9,7 +9,7 @@ Free polls for every man, woman, child, and politician on Earth.
 
 - [Install MongoDB](https://www.mongodb.org/downloads)
 - [Install Redis](http://redis.io/download)
-- [Install NodeJS](http://nodejs.org/dist/), v0.11.x
+- [Install NodeJS](http://nodejs.org/dist/), v0.11.14+
 - Clone repo: `git clone git@github.com:schmich/litepoll`
 - Install dependencies: `npm install`
 - Run the server

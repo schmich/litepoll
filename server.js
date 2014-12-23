@@ -36,27 +36,32 @@ if (app.settings.env == 'development') {
 
 function handleErrors(handler) {
   return function(req, res) {
-    co(handler)(req, res, function(err, _) {
-      if (err) {
-        if (err instanceof NotFoundError) {
-          code = 404;
-          error = 'Not found.';
-        } else if (err instanceof BadRequestError) {
-          code = 400;
-          error = err.message;
-        } else {
-          code = 500;
-          error = 'Unexpected error.';
-        }
+    var handle = co.wrap(handler);
+    handle(req, res)
+      .then(function() {
+        // Do nothing.
+      }, function(err) {
+        if (err) {
+          if (err instanceof NotFoundError) {
+            code = 404;
+            error = 'Not found.';
+          } else if (err instanceof BadRequestError) {
+            code = 400;
+            error = err.message;
+          } else {
+        console.log(err);
+            code = 500;
+            error = 'Unexpected error.';
+          }
 
-        res.status(code);
-        if (req.accepts('html', 'json') == 'html') {
-          res.render(code.toString());
-        } else {
-          res.send({ error: error });
+          res.status(code);
+          if (req.accepts('html', 'json') == 'html') {
+            res.render(code.toString());
+          } else {
+            res.send({ error: error });
+          }
         }
-      }
-    });
+      });
   }
 }
 

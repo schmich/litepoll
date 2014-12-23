@@ -8,7 +8,7 @@ var BadRequestError = require('../lib/bad-request');
 var createKey = require('../lib/key').createKey;
 var sse = require('../lib/sse');
 var co = require('co');
-var ip = require('ip');
+var ip = require('ipaddr.js');
 var _ = require('underscore');
 
 function err(message) {
@@ -119,7 +119,7 @@ exports.create = function *(req, res) {
     opts: options,
     votes: votes,
     strict: strict ? true : false,
-    creator: ip.toBuffer(req.ip),
+    creator: new Buffer(ip.parse(req.ip).toByteArray()),
     comments: [],
     allowComments: allowComments ? true : false,
     key: key,
@@ -180,7 +180,7 @@ exports.vote = function *(req, res) {
     }
   }
 
-  var commitVote = co(function *() {
+  var commitVote = co.wrap(function *() {
     var poll = yield Poll.vote(id, votes);
     res.send(200, { path: { web: '/' + id + '/r' } });
     sse.publish('polls:' + id, 'vote', poll.votes);
