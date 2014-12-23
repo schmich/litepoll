@@ -27,15 +27,12 @@ app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('
 // Enable trust proxy in order to get the forwarded request IP from NGINX.
 app.enable('trust proxy');
 
-app.configure('development', function() {
-  console.log('Mode: development');
+console.log('Mode: ' + app.settings.env);
+if (app.settings.env == 'development') {
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-});
-
-app.configure('production', function() {
-  console.log('Mode: production');
+} else if (app.settings.env == 'production') {
   app.use(express.errorHandler()); 
-});
+}
 
 function handleErrors(handler) {
   return function(req, res) {
