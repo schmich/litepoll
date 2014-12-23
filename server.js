@@ -20,7 +20,6 @@ if (app.settings.env != 'test') {
 }
 app.use(express.json());
 app.use(express.urlencoded());
-app.use(express.methodOverride());
 app.use(app.router);
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('views') }).render);
