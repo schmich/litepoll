@@ -11,7 +11,7 @@
     "bot": "node --harmony test/bot.js"
   },
   "dependencies": {
-    "bluebird": "^2.3.1",
+    "bluebird": "^2.3.11",
     "co": "^4.0.1",
     "co-redis": "^1.1.0",
     "ect": "^0.5.9",
