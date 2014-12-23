@@ -4,6 +4,7 @@
  */
 
 var MPromise = require('mpromise');
+var util = require('util');
 
 /**
  * Promise constructor.
@@ -85,7 +86,12 @@ Promise.FAILURE = 'err';
  */
 
 Promise.prototype.error = function (err) {
-  if (!(err instanceof Error)) err = new Error(err);
+  if (!(err instanceof Error)) {
+    if (err instanceof Object) {
+      err = util.inspect(err);
+    }
+    err = new Error(err);
+  }
   return this.reject(err);
 }
 
@@ -103,10 +109,10 @@ Promise.prototype.error = function (err) {
  * @api public
  */
 
-Promise.prototype.resolve = function (err, val) {
+Promise.prototype.resolve = function (err) {
   if (err) return this.error(err);
-  return this.fulfill(val);
-}
+  return this.fulfill.apply(this, Array.prototype.slice.call(arguments, 1));
+};
 
 /**
  * Adds a single function as a listener to both err and complete.
