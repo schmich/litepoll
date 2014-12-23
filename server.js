@@ -7,6 +7,10 @@ var path = require('path');
 var ect = require('ect');
 var co = require('co');
 var sse = require('./lib/sse');
+var favicon = require('serve-favicon');
+var bodyParser = require('body-parser');
+var morgan = require('morgan');
+var errorHandler = require('errorhandler');
 var NotFoundError = require('./lib/not-found');
 var BadRequestError = require('./lib/bad-request');
 
@@ -14,13 +18,12 @@ var app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ect');
-app.use(express.favicon(__dirname + '/public/img/favicon.ico'));
+app.use(favicon(__dirname + '/public/img/favicon.ico'));
 if (app.settings.env != 'test') {
-  app.use(express.logger('dev'));
+  app.use(morgan('dev'));
 }
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(app.router);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('views') }).render);
 
@@ -29,9 +32,7 @@ app.enable('trust proxy');
 
 console.log('Mode: ' + app.settings.env);
 if (app.settings.env == 'development') {
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-} else if (app.settings.env == 'production') {
-  app.use(express.errorHandler()); 
+  app.use(errorHandler());
 }
 
 function handleErrors(handler) {
@@ -65,22 +66,26 @@ function handleErrors(handler) {
   }
 }
 
-app.get('/translate', pages.translate);
-app.post('/polls', handleErrors(api.create));
-app.get('/polls/:id', handleErrors(api.show));
-app.get('/polls/:id/options', handleErrors(api.options));
-app.patch('/polls/:id', handleErrors(api.vote));
-app.post('/polls/:id/comments', handleErrors(api.comment));
-app.get('/polls/:id/events', handleErrors(api.events));
-app.patch('/polls/:pollId/comments/:commentIndex', handleErrors(api.voteComment));
-app.get('/', poll.create);
-app.get('/:id', handleErrors(poll.show));
-app.get('/:id/r', handleErrors(poll.results));
-app.get('/:id/s', handleErrors(poll.share));
-app.use(function(req, res) {
+var router = express.Router();
+
+router.get('/translate', pages.translate);
+router.post('/polls', handleErrors(api.create));
+router.get('/polls/:id', handleErrors(api.show));
+router.get('/polls/:id/options', handleErrors(api.options));
+router.patch('/polls/:id', handleErrors(api.vote));
+router.post('/polls/:id/comments', handleErrors(api.comment));
+router.get('/polls/:id/events', handleErrors(api.events));
+router.patch('/polls/:pollId/comments/:commentIndex', handleErrors(api.voteComment));
+router.get('/', poll.create);
+router.get('/:id', handleErrors(poll.show));
+router.get('/:id/r', handleErrors(poll.results));
+router.get('/:id/s', handleErrors(poll.share));
+router.use(function(req, res) {
   res.status(404);
   res.render('404');
 });
+
+app.use('/', router);
 
 var server = http.createServer(app);
 
