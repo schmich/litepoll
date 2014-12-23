@@ -133,7 +133,7 @@ exports.create = function *(req, res) {
   }
 
   res.set('Location', '/polls/' + id);
-  res.send(201, { path: { web: '/' + id + '/s', api: '/polls/' + id } });
+  res.status(201).send({ path: { web: '/' + id + '/s', api: '/polls/' + id } });
 
   redisCachePollOptions(poll);
 };
@@ -182,7 +182,7 @@ exports.vote = function *(req, res) {
 
   var commitVote = co.wrap(function *() {
     var poll = yield Poll.vote(id, votes);
-    res.send(200, { path: { web: '/' + id + '/r' } });
+    res.status(200).send({ path: { web: '/' + id + '/r' } });
     sse.publish('polls:' + id, 'vote', poll.votes);
   });
 
@@ -263,7 +263,7 @@ exports.comment = function *(req, res) {
   var comment = yield Poll.addComment(id, comment, req.ip);
   if (comment) {
     res.set('Location', '/polls/' + id + '/comments/' + comment.index);
-    res.send(201, {});
+    res.status(201).send({});
     sse.publish('polls:' + id, 'comment', {
       index: comment.index,
       text: comment.text,
