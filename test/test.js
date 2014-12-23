@@ -24,11 +24,10 @@ server.listen(port, function() { });
 function Client(endpoint) {
   this.endpoint = endpoint;
 
-  this.get = function(path, json, headers) {
+  this.get = function(path) {
     return request({
       method: 'GET',
       json: true,
-      headers: headers,
       url: url.resolve(this.endpoint, path)
     });
   }
