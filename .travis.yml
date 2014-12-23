@@ -4,3 +4,5 @@ node_js:
 services:
   - mongodb
   - redis-server
+before_install:
+  - rm -rf ./node_modules
