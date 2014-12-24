@@ -39,7 +39,7 @@ function setMaxCache(res, seconds) {
 }
 
 function setCache(res, seconds) {
-  var expires = moment().utc().add('years', 1);
+  var expires = moment().utc().add(1, 'years');
   res.set('Cache-Control', 'public, max-age=' + seconds);
   res.set('Expires', expires.format('ddd, DD MMM YYYY HH:mm:ss [GMT]'));
 }
