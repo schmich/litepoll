@@ -107,7 +107,7 @@ app.controller('PollVoteCtrl', function($scope, $http, $element, localStorageSer
   $scope.multiVote = [];
   $scope.votes = [];
 
-  var votesKey = 'votes:' + pollId;
+  var votesKey = 'vo:' + pollId;
   $scope.currentVotes = localStorageService.get(votesKey);
 
   $scope.$watch('oneVote', function(vote) {
@@ -283,8 +283,8 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
       return;
     }
 
-    commentKey = 'comment:' + poll.id;
-    commentVoteKey = 'comment:' + poll.id + ':votes';
+    commentKey = 'co:' + poll.id;
+    commentVoteKey = 'co:' + poll.id + ':vo';
     $scope.hasCommented = localStorageService.get(commentKey);
     $scope.commentVotes = localStorageService.get(commentVoteKey) || { };
   });
