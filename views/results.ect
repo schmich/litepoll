@@ -8,6 +8,8 @@
         &middot;
         <a href="#comments">{{poll.comments.length | plural:'comment' | titleCase}}</a>
       </span>
+      &middot;
+      <span time-since="poll.time"></span>
     </div>
     <ol>
       <li class="option" ng-repeat="option in options | orderBy:'-votes' track by $index">

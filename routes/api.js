@@ -243,6 +243,7 @@ exports.show = function *(req, res) {
     options: poll.opts,
     votes: poll.votes,
     comments: comments,
+    time: poll.time.getTime(),
     allowComments: poll.allowComments,
     maxVotes: poll.maxVotes
   });

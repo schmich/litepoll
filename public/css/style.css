@@ -232,7 +232,7 @@ input[type="checkbox"]:checked + label .icon:before {
   margin-bottom: 5px;
 }
 #vote-poll .title, .results .votes {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 .results .votes {
   display: inline-block;
@@ -254,8 +254,8 @@ input[type="checkbox"]:checked + label .icon:before {
   list-style-type: none;
 }
 .comment .time {
-  font-size: 22px;
-  color: #888;
+  font-size: 20px;
+  color: #aaa;
   display: block;
   margin-top: 2px;
 }
