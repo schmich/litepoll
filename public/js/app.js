@@ -448,6 +448,7 @@ app.directive('timeSince', function($interval) {
     link: function(scope, elem, attr) {
       var timestamp = scope.$eval(attr.timeSince);
       elem.text(elapsedTimeFormat(timestamp, Date.now()));
+      elem.attr('title', new Date(timestamp));
 
       updates.push({ elem: elem, timestamp: timestamp });
 
