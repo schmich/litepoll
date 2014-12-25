@@ -16,21 +16,30 @@ var BadRequestError = require('./lib/bad-request');
 
 var app = express();
 
+console.log('Env: ' + app.settings.env);
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ect');
-app.use(favicon(__dirname + '/public/img/favicon.ico'));
-if (app.settings.env != 'test') {
+
+if (app.settings.env == 'development') {
   app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
 }
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/assets', express.static(path.join(__dirname, 'public')));
+
+if (app.settings.env == 'development') {
+  app.use(favicon(__dirname + '/public/img/favicon.ico'));
+  app.use('/assets', express.static(path.join(__dirname, 'public')));
+}
+
 app.engine('.ect', ect({ watch: app.get('env') == 'development', root: app.get('views') }).render);
 
 // Enable trust proxy in order to get the forwarded request IP from NGINX.
 app.enable('trust proxy');
 
-console.log('Mode: ' + app.settings.env);
 if (app.settings.env == 'development') {
   app.use(errorHandler());
 }
