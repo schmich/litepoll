@@ -320,19 +320,15 @@ app.controller('PollCommentCtrl', function($scope, $http, localStorageService) {
   };
 });
 
-function plural(count, word) {
-  if (count == 0) {
-    return 'no ' + word + 's';
-  } else if (count == 1) {
-    return '1 ' + word;
-  } else {
-    return count + ' ' + word + 's';
-  }
-}
-
-app.filter('plural', function() {
-  return function(input, word) {
-    return plural(input, word);
+app.filter('plural', function($filter) {
+  return function(count, word) {
+    if (count == 0) {
+      return 'no ' + word + 's';
+    } else if (count == 1) {
+      return '1 ' + word;
+    } else {
+      return $filter('number')(count, 0) + ' ' + word + 's';
+    }
   };
 });
 
