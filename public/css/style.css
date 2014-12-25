@@ -333,6 +333,8 @@ input[type="checkbox"]:checked + label .icon:before {
   border-radius: 5px;
   -khtml-border-radius: 5px;
   transition: 0.25s;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 .action:hover, .action:focus {
   background: #0084f2;
