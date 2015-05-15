@@ -9,16 +9,16 @@ html, body {
   height: 100%;
 }
 html, body, input {
-  font-family: 'Helvetica Neue', Calibri, Arial, sans-serif;
+  font-family: Roboto, 'Helvetica Neue', Calibri, Arial, sans-serif;
   font-size: 28px;
-  font-weight: 200;
+  font-weight: 300;
 }
 body {
   background: url('/assets/img/bg.jpg') #505052;
 }
 h1 {
   font-size: 28px;
-  font-weight: 200;
+  font-weight: 300;
 }
 ol, ul {
   margin-left: 55px;
