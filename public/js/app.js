@@ -75,7 +75,7 @@ app.controller('PollCreateCtrl', function($scope, $http) {
         window.location.pathname = res.path.web;
       })
       .error(function() {
-        alert('You must specify a title and at least two options.');
+        alert('You must specify a question and at least two options.');
         $scope.toggleAdvanced(false);
       });
   };
